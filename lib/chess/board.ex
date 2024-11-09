@@ -4,7 +4,7 @@ defmodule Chess.Board do
             cells: %{},  # {coordinate} => %Chess.Piece{}
             capture_piles: %{black: [], white: []}  # Capture piles for both colors
 
-  # Modify make_move to handle capturing a piece
+  # Modify make_move to handle capturing a piece and detecting checkmate
   def make_move(board = %Chess.Board{cells: cells, capture_piles: capture_piles}, to, from) do
     if to == from do
       board
@@ -19,19 +19,33 @@ defmodule Chess.Board do
       end
 
       # Move the piece and clear the old position
-      %{board | cells: %{cells | to => cells[from], from => nil}}
+      board = %{board | cells: %{cells | to => cells[from], from => nil}}
+
+      # Check for checkmate after moving
+      if checkmate?(board, get_opponent_color(cells[to].color)) do
+        IO.puts("Checkmate detected!")
+      end
+
+      board
     end
   end
 
   # Function to handle adding a captured piece to the capture pile
   defp capture_piece(capture_piles, piece) do
-    # Add the captured piece to the appropriate capture pile
     case piece.color do
       :black -> %{capture_piles | black: [piece | capture_piles.black]}
       :white -> %{capture_piles | white: [piece | capture_piles.white]}
     end
   end
 
+  defp checkmate?(board, color) do
+    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and piece.color == color end), fn {pos, piece} ->
+      Chess.Piece.possible_moves(board, piece, pos) == []
+    end)
+  end
+
+  defp get_opponent_color(:white), do: :black
+  defp get_opponent_color(:black), do: :white
   def standard() do
     %Chess.Board{
       width: 8, height: 8, cells: %{
