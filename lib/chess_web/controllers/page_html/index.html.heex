@@ -7,21 +7,42 @@
   <link rel="stylesheet" href={~p"/assets/css/app.css"}> <!-- Link to your CSS -->
   <style>
     body {
-      background-color: #f0f0f0;
+      background-image: url(<%= ~p"/assets/Images/LandingPageBackground.jpg" %>);
+      background-size: cover;
+      background-position: center;
       font-family: Arial, sans-serif;
       text-align: center;
-      color: #333;
+      color: #000000;
     }
     header {
       margin: 20px 0;
     }
+    .chess-board-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
     .chess-board {
-      display: inline-block;
-      width: 400px;  /* Size of your chessboard */
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 400px;
       height: 400px;
-      background-image: url(<%= ~p"/images/chessboard.png" %>); /* Add your chessboard image */
-      background-size: cover;
-      border: 2px solid #000; /* Optional border */
+    }
+    .chess-board button {
+      margin: 5px;
+      padding: 20px 50px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .chess-board button:hover {
+      background-color: #555;
     }
   </style>
 </head>
@@ -32,7 +53,11 @@
   </header>
 
   <section class="chess-board-container">
-    <div class="chess-board"></div>
+    <div class="chess-board">
+      <button onclick="window.location.href='https://crazychess.xyz/play'">Play Classic</button>
+      <button onclick="window.location.href='https://crazychess.xyz/playcrazy'">Play Crazy</button>
+      <button onclick="window.location.href='https://crazychess.xyz/war'">War Mode</button>
+    </div>
   </section>
 
   <footer>
