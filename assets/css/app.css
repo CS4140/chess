@@ -45,43 +45,4 @@
     @apply content-[''] absolute w-5 h-5 bg-green-500/30 rounded-full;
   }
 
-  /* Tooltip styling */
-  .tooltip {
-    @apply hidden absolute bg-gray-800 text-white p-1 rounded text-xs whitespace-nowrap;
-    top: 100%; /* Position below the square */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-  }
-  
-  .square:hover .tooltip {
-    @apply block;
-  }
 
-}
-
-/* Custom styles for the landing page */
-@layer base {
-  body {
-    background-color: #f0f0f0;
-    color: #333;
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-  }
-
-  .chess-theme {
-    margin-top: 50px;
-  }
-
-  .landing-title {
-    @apply text-4xl font-bold mb-4;
-  }
-
-  .landing-description {
-    @apply text-xl mb-6;
-  }
-
-  .chess-board {
-    background-size: cover;
-  }
-}
