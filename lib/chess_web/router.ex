@@ -1,3 +1,4 @@
+
 defmodule ChessWeb.Router do
   use ChessWeb, :router
 
@@ -26,6 +27,8 @@ defmodule ChessWeb.Router do
     live "/auto", Live.Auto
     live "/play/:id", Live.Interactive
     live "/play", Live.Interactive
+    live "/crazy", Live.CrazyChess
+    live "/crazy/:id", Live.CrazyChess
     live "/play2", Live.Interactive2
   end
 
