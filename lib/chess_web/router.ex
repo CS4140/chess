@@ -29,7 +29,7 @@ defmodule ChessWeb.Router do
     live "/play", Live.Interactive
     live "/crazy", Live.CrazyChess
     live "/crazy/:id", Live.CrazyChess
-
+    live "/play2", Live.Interactive2
   end
 
   # Other scopes may use custom stacks.
