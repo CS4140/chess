@@ -29,7 +29,7 @@ defmodule ChessWeb.Live.Interactive do
       end
     else
       {:ok, socket |> assign(:game, id)
-                  |> assign(:board, Chess.Board.standard())
+                  |> assign(:board, Chess.Board.Presets.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -63,7 +63,7 @@ defmodule ChessWeb.Live.Interactive do
       end
     else
       {:ok, socket |> assign(:game, nil)
-                  |> assign(:board, Chess.Board.standard())
+                  |> assign(:board, Chess.Board.Presets.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -80,7 +80,7 @@ defmodule ChessWeb.Live.Interactive do
     Chess.PubSub.subscribe("game:#{game_id}")
     
     initial_state = %{
-      board: Chess.Board.standard(),
+      board: Chess.Board.Presets.standard(),
       turn: :white
     }
     
@@ -108,7 +108,7 @@ defmodule ChessWeb.Live.Interactive do
       """
     else
       ~H"""
-      <div class="container mx-auto px-4 py-8">
+      <div class="">
         <%= if @game do %>
           <div class="text-center mb-4">
             <div>Game ID: <%= @game %></div>
