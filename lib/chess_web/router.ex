@@ -1,3 +1,4 @@
+
 defmodule ChessWeb.Router do
   use ChessWeb, :router
 
@@ -25,7 +26,13 @@ defmodule ChessWeb.Router do
 #    post "/chess_games/move", ChessGameController, :make_move
     live "/play/:id", Live.Interactive
     live "/play", Live.Interactive
+
     live "/prepare", Live.Prepare
+
+    live "/crazy", Live.CrazyChess
+    live "/crazy/:id", Live.CrazyChess
+
+    live "/play2", Live.Interactive2
   end
 
   # Other scopes may use custom stacks.

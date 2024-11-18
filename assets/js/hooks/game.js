@@ -10,8 +10,14 @@ const GameHook = {
 
     console.log("Setting up game:", gameId);
     
-    // Join the game channel
-    this.channel = window.gameSocket.channel(`game:${gameId}`);
+    // Determine game type from URL
+    const isCrazyChess = window.location.pathname.startsWith('/crazy');
+    const channelTopic = isCrazyChess ? `crazy_game:${gameId}` : `game:${gameId}`;
+    
+    console.log(`Joining channel: ${channelTopic}`);
+    
+    // Join the appropriate game channel
+    this.channel = window.gameSocket.channel(channelTopic);
     
     this.channel.join()
       .receive("ok", resp => {
