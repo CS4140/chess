@@ -51,7 +51,7 @@ defmodule ChessWeb.Live.Interactive do
       Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
       
       initial_state = %{
-        board: Chess.Board.standard(),
+        board: Chess.Board.Presets.standard(),
         turn: :white
       }
       
@@ -74,33 +74,30 @@ defmodule ChessWeb.Live.Interactive do
     end
   end
 
-  # New helper function to create games
-  defp create_new_game(socket) do
-    game_id = generate_game_id()
-    Logger.info("Generated new game ID: #{game_id}")
-    
-    # Subscribe to PubSub updates for the new game
-    Chess.PubSub.subscribe("game:#{game_id}")
-    
-    initial_state = %{
-      board: Chess.Board.Presets.standard(),
-      turn: :white
-    }
-    
-    Chess.GameState.create_game(game_id, initial_state)
-    Logger.info("Saved initial state for game: #{game_id}")
-    
-    {:ok, socket |> assign(:game, game_id)
-    |> assign(:board, initial_state.board)
-    |> assign(:turn, initial_state.turn)
-    |> assign(:selected_square, nil)
-    |> assign(:valid_moves, [])
-    |> assign(:player_color, :white)}
-  end
-
-  defp generate_game_id do
-    :crypto.strong_rand_bytes(8) |> Base.url_encode64(padding: false)
-  end
+# Disabled to remove unused function warning
+#  # New helper function to create games
+#  defp create_new_game(socket) do
+#    game_id = generate_game_id()
+#    Logger.info("Generated new game ID: #{game_id}")
+#    
+#    # Subscribe to PubSub updates for the new game
+#    Chess.PubSub.subscribe("game:#{game_id}")
+#    
+#    initial_state = %{
+#      board: Chess.Board.Presets.standard(),
+#      turn: :white
+#    }
+#    
+#    Chess.GameState.create_game(game_id, initial_state)
+#    Logger.info("Saved initial state for game: #{game_id}")
+#    
+#    {:ok, socket |> assign(:game, game_id)
+#    |> assign(:board, initial_state.board)
+#    |> assign(:turn, initial_state.turn)
+#    |> assign(:selected_square, nil)
+#    |> assign(:valid_moves, [])
+#    |> assign(:player_color, :white)}
+#  end
 
   # Render function remains unchanged
   @impl true
