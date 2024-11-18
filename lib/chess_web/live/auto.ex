@@ -7,7 +7,7 @@ defmodule ChessWeb.Live.Auto do
       # TODO: fetch game from server with id
       IO.puts "Connected with ID"
       {:ok, socket |> assign(:game, id)
-                   |> assign(:board, Chess.Board.testboard())}
+                   |> assign(:board, Chess.Board.Presets.testboard())}
     else
       IO.puts "Not connected with ID"
       {:ok, socket}
@@ -20,7 +20,7 @@ defmodule ChessWeb.Live.Auto do
       # TODO: fetch game from server with id
       IO.puts "Connected no ID"
       {:ok, socket |> assign(:game, nil)
-                   |> assign(:board, Chess.Board.testboard())}
+                   |> assign(:board, Chess.Board.Presets.testboard())}
     else
       IO.puts "Not connected no ID"
       {:ok, socket}
@@ -54,7 +54,6 @@ defmodule ChessWeb.Live.Auto do
 """
     end
   end
-
 
   defp random_movable_piece(board = %Chess.Board{cells: cells}) do
     loc = Map.keys(cells) |> Enum.random()
