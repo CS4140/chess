@@ -183,7 +183,7 @@ defmodule ChessWeb.Live.Interactive2 do
           from = socket.assigns.selected_square
           Logger.info("Moving from: #{inspect(from)} to: #{inspect(position)}")
           
-          if position in Chess.Piece.possible_moves(socket.assigns.board, socket.assigns.board.cells[from], from) do
+          if position in Chess.Piece.Moves.get(socket.assigns.board, socket.assigns.board.cells[from], from) do
             new_board = Chess.Board2.make_move(socket.assigns.board, position, from)
             new_turn = if(socket.assigns.turn == :white, do: :black, else: :white)
             
@@ -222,7 +222,7 @@ defmodule ChessWeb.Live.Interactive2 do
             piece ->
               if piece.color == socket.assigns.turn do
                 Logger.info("Selected piece: #{piece.color} #{piece.type}")
-                valid_moves = Chess.Piece.possible_moves(socket.assigns.board, piece, position)
+                valid_moves = Chess.Piece.Moves.get(socket.assigns.board, piece, position)
                 {:noreply, socket |> assign(:selected_square, position) |> assign(:valid_moves, valid_moves)}
               else
                 Logger.info("Selected opponent's piece")

@@ -160,7 +160,7 @@ defmodule ChessWeb.Live.CrazyChess do
           Logger.info("Moving from: #{inspect(from)} to: #{inspect(position)}")
           
           piece = socket.assigns.board.cells[from]
-          valid_moves = Chess.CrazyPiece.possible_moves(socket.assigns.board, piece, from)
+          valid_moves = Chess.CrazyPiece.Moves.get(socket.assigns.board, piece, from)
           
           if position in valid_moves do
             new_board = Chess.CrazyBoard.make_move(socket.assigns.board, position, from)
@@ -201,7 +201,7 @@ defmodule ChessWeb.Live.CrazyChess do
             piece ->
               if piece.color == socket.assigns.turn do
                 Logger.info("Selected piece: #{piece.color} #{piece.type}")
-                valid_moves = Chess.CrazyPiece.possible_moves(socket.assigns.board, piece, position)
+                valid_moves = Chess.CrazyPiece.Moves.get(socket.assigns.board, piece, position)
                 {:noreply, socket |> assign(:selected_square, position) |> assign(:valid_moves, valid_moves)}
               else
                 Logger.info("Selected opponent's piece")

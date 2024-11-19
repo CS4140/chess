@@ -59,7 +59,7 @@ defmodule ChessWeb.Live.Auto do
     loc = Map.keys(cells) |> Enum.random()
 
     if cells[loc] != nil do
-      moves = Chess.Piece.possible_moves(board, cells[loc], loc)
+      moves = Chess.Piece.Moves.get(board, cells[loc], loc)
       if length(moves) > 1 do
 	{loc, moves -- [loc]}
       else
