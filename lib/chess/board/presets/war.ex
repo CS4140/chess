@@ -1,16 +1,4 @@
-defmodule Chess.Board2 do
-  defstruct width: nil,
-            height: nil,
-            cells: %{} # {coordinate} => %Chess.Piece{}
-
-  def make_move(board = %Chess.Board{cells: cells}, to, from) do
-    if to == from do
-      board
-    else
-      %{board | cells: %{ cells | to => board.cells[from], from => nil }}
-    end
-  end
-
+defmodule Chess.Board.Presets.War do
   def standard() do
     %Chess.Board{
         width: 24, height: 24, cells: %{

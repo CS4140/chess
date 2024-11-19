@@ -29,7 +29,7 @@ defmodule ChessWeb.Live.Interactive2 do
       end
     else
       {:ok, socket |> assign(:game, id)
-                  |> assign(:board, Chess.Board2.standard())
+                  |> assign(:board, Chess.Board.Presets.War.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -63,7 +63,7 @@ defmodule ChessWeb.Live.Interactive2 do
       end
     else
       {:ok, socket |> assign(:game, nil)
-                  |> assign(:board, Chess.Board2.standard())
+                  |> assign(:board, Chess.Board.Presets.War.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -80,7 +80,7 @@ defmodule ChessWeb.Live.Interactive2 do
     Chess.PubSub.subscribe("game:#{game_id}")
     
     initial_state = %{
-      board: Chess.Board2.standard(),
+      board: Chess.Board.Presets.War.standard(),
       turn: :white
     }
     
@@ -184,7 +184,7 @@ defmodule ChessWeb.Live.Interactive2 do
           Logger.info("Moving from: #{inspect(from)} to: #{inspect(position)}")
           
           if position in Chess.Piece.Moves.get(socket.assigns.board, socket.assigns.board.cells[from], from) do
-            new_board = Chess.Board2.make_move(socket.assigns.board, position, from)
+            new_board = Chess.Board.make_move(socket.assigns.board, position, from)
             new_turn = if(socket.assigns.turn == :white, do: :black, else: :white)
             
             # Update game state and broadcast move

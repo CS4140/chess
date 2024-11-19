@@ -31,7 +31,7 @@ defmodule ChessWeb.Live.CrazyChess do
       end
     else
       {:ok, socket |> assign(:game, id)
-                  |> assign(:board, Chess.CrazyBoard.standard())
+                  |> assign(:board, Chess.Board.Presets.Crazy.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -51,7 +51,7 @@ defmodule ChessWeb.Live.CrazyChess do
       Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
       
       initial_state = %{
-        board: Chess.CrazyBoard.standard(),
+        board: Chess.Board.Presets.Crazy.standard(),
         turn: :white
       }
       
@@ -66,7 +66,7 @@ defmodule ChessWeb.Live.CrazyChess do
                   |> assign(:player_color, :white)}
     else
       {:ok, socket |> assign(:game, nil)
-                  |> assign(:board, Chess.CrazyBoard.standard())
+                  |> assign(:board, Chess.Board.Presets.Crazy.standard())
                   |> assign(:turn, :white)
                   |> assign(:selected_square, nil)
                   |> assign(:valid_moves, [])
@@ -102,7 +102,7 @@ defmodule ChessWeb.Live.CrazyChess do
                 is_selected = @selected_square == {row, col}
                 is_valid_move = {row, col} in @valid_moves
                 square_color = if rem(row + col, 2) == 0, do: "white", else: "black"
-                piece_data = if piece, do: Chess.CrazyPiece.glyphs()[piece.color][piece.type]
+                piece_data = if piece, do: Chess.Piece.glyphs()[piece.color][piece.type]
               %>
               <div class={"square #{square_color} #{if is_selected, do: "selected"} #{if is_valid_move, do: "valid-move"}"}
                    phx-click="select_square"
@@ -160,10 +160,10 @@ defmodule ChessWeb.Live.CrazyChess do
           Logger.info("Moving from: #{inspect(from)} to: #{inspect(position)}")
           
           piece = socket.assigns.board.cells[from]
-          valid_moves = Chess.CrazyPiece.Moves.get(socket.assigns.board, piece, from)
+          valid_moves = Chess.Piece.Moves.get(socket.assigns.board, piece, from)
           
           if position in valid_moves do
-            new_board = Chess.CrazyBoard.make_move(socket.assigns.board, position, from)
+            new_board = Chess.Board.make_move(socket.assigns.board, position, from)
             new_turn = if(socket.assigns.turn == :white, do: :black, else: :white)
             
             # Update game state and broadcast move
@@ -201,7 +201,7 @@ defmodule ChessWeb.Live.CrazyChess do
             piece ->
               if piece.color == socket.assigns.turn do
                 Logger.info("Selected piece: #{piece.color} #{piece.type}")
-                valid_moves = Chess.CrazyPiece.Moves.get(socket.assigns.board, piece, position)
+                valid_moves = Chess.Piece.Moves.get(socket.assigns.board, piece, position)
                 {:noreply, socket |> assign(:selected_square, position) |> assign(:valid_moves, valid_moves)}
               else
                 Logger.info("Selected opponent's piece")
