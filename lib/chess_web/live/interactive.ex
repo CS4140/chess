@@ -5,72 +5,56 @@ defmodule ChessWeb.Live.Interactive do
   # Define PubSub topic prefix for regular chess games
   @pubsub_topic_prefix "game:"
 
+  @initial_state %{board: Chess.Board.Presets.standard, turn: :white}
+
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    Logger.info("Mounting regular chess with ID: #{id}")
-    
+  def mount(%{"id" => id}, _session, socket) do # Entry point for existing games
+    Logger.info "Mounting game with id #{id}"
+
     if connected?(socket) do
-      # Subscribe to regular chess specific PubSub updates
-      Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{id}")
-      
-      game_state = Chess.GameState.get_game(id)
-      Logger.info("Game state for #{id}: #{inspect(game_state)}")
-      
-      case game_state do
-        nil -> 
-          Logger.info("No game found for ID: #{id}")
-          {:ok, socket |> redirect(to: "/play")}
-        game_state ->
-          Logger.info("Joining existing game: #{id}")
-          {:ok, socket |> assign(:game, id)
-          |> assign(:board, game_state.board)
-          |> assign(:turn, game_state.turn)
-          |> assign(:selected_square, nil)
-          |> assign(:valid_moves, [])
-          |> assign(:player_color, :black)}
+      if game_state = Chess.GameState.get_game(id) do
+	# Subscribe to PubSub for game updates
+	Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{id}")
+	
+	Logger.info("Found existing game (#{id})")
+	{:ok, socket |> assign(:game, id)
+                     |> assign(:board, game_state.board)
+                     |> assign(:turn, :black)
+                     |> assign(:selected_square, nil)
+                     |> assign(:valid_moves, [])
+                     |> assign(:player_color, :black)}
+      else
+	Logger.info "Unknown game ID"
+	{:ok, socket |> redirect(to: "/play") }
       end
     else
-      {:ok, socket |> assign(:game, id)
-      |> assign(:board, Chess.Board.Presets.standard())
-      |> assign(:turn, :white)
-      |> assign(:selected_square, nil)
-      |> assign(:valid_moves, [])
-      |> assign(:player_color, :black)}
+      Logger.info "Not connected with ID"
+      {:ok, socket}
     end
   end
 
   @impl true
-  def mount(_params, _session, socket) do
-    Logger.info("Mounting new regular chess game")
+  def mount(_params, _session, socket) do # Entry point for new games
+    Logger.info "Mounting new game"
     
     if connected?(socket) do
       game_id = generate_game_id()
-      Logger.info("Generated new game ID: #{game_id}")
+      Logger.info "Generated new game ID: #{game_id}"
       
-      # Subscribe to PubSub updates for the new game
+      # Subscrube to PubSub for game updates and save initial state
       Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
+      Chess.GameState.create_game(game_id, @initial_state)
       
-      initial_state = %{
-        board: Chess.Board.Presets.standard(),
-        turn: :white
-      }
-      
-      Chess.GameState.create_game(game_id, initial_state)
-      Logger.info("Saved initial state for game: #{game_id}")
-      
+      # Return a new game
       {:ok, socket |> assign(:game, game_id)
-      |> assign(:board, initial_state.board)
-      |> assign(:turn, initial_state.turn)
-      |> assign(:selected_square, nil)
-      |> assign(:valid_moves, [])
-      |> assign(:player_color, :white)}
+                   |> assign(:board, @initial_state.board)
+                   |> assign(:turn, @initial_state.turn)
+                   |> assign(:selected_square, nil)
+                   |> assign(:valid_moves, [])
+                   |> assign(:player_color, :white)}
     else
-      {:ok, socket |> assign(:game, nil)
-      |> assign(:board, Chess.Board.Presets.standard())
-      |> assign(:turn, :white)
-      |> assign(:selected_square, nil)
-      |> assign(:valid_moves, [])
-      |> assign(:player_color, :white)}
+      Logger.info "Not connected no ID"
+      {:ok, socket}
     end
   end
 
