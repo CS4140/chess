@@ -1,86 +1,86 @@
 defmodule Chess.Board.Presets.Crazy do
-  def standard() do
+  def standard(p1, p2) do
     %Chess.Board{
       width: 8, height: 8, cells: %{
         # Black pieces back row (column 0)
-        {0, 0} => %Chess.Piece{type: :dragon, color: :black},
-        {1, 0} => %Chess.Piece{type: :ninja, color: :black},
-        {2, 0} => %Chess.Piece{type: :phoenix, color: :black},
-        {3, 0} => %Chess.Piece{type: :wizard, color: :black},
-        {4, 0} => %Chess.Piece{type: :king, color: :black},
-        {5, 0} => %Chess.Piece{type: :phoenix, color: :black},
-        {6, 0} => %Chess.Piece{type: :ninja, color: :black},
-        {7, 0} => %Chess.Piece{type: :dragon, color: :black},
+        [0, 0] => %Chess.Piece{type: :dragon, owner: p2},
+        [1, 0] => %Chess.Piece{type: :ninja, owner: p2},
+        [2, 0] => %Chess.Piece{type: :phoenix, owner: p2},
+        [3, 0] => %Chess.Piece{type: :wizard, owner: p2},
+        [4, 0] => %Chess.Piece{type: :king, owner: p2},
+        [5, 0] => %Chess.Piece{type: :phoenix, owner: p2},
+        [6, 0] => %Chess.Piece{type: :ninja, owner: p2},
+        [7, 0] => %Chess.Piece{type: :dragon, owner: p2},
 
         # Black pawns (column 1)
-        {0, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {1, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {2, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {3, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {4, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {5, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {6, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {7, 1} => %Chess.Piece{type: :pawn, color: :black},
+        [0, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [1, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [2, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [3, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [4, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [5, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [6, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [7, 1] => %Chess.Piece{type: :pawn, owner: p2},
 
         # Empty middle squares
-        {0, 2} => nil, {1, 2} => nil, {2, 2} => nil, {3, 2} => nil,
-        {4, 2} => nil, {5, 2} => nil, {6, 2} => nil, {7, 2} => nil,
+        [0, 2] => nil, [1, 2] => nil, [2, 2] => nil, [3, 2] => nil,
+        [4, 2] => nil, [5, 2] => nil, [6, 2] => nil, [7, 2] => nil,
 
-        {0, 3} => nil, {1, 3} => nil, {2, 3} => nil, {3, 3} => nil,
-        {4, 3} => nil, {5, 3} => nil, {6, 3} => nil, {7, 3} => nil,
+        [0, 3] => nil, [1, 3] => nil, [2, 3] => nil, [3, 3] => nil,
+        [4, 3] => nil, [5, 3] => nil, [6, 3] => nil, [7, 3] => nil,
 
-        {0, 4} => nil, {1, 4} => nil, {2, 4} => nil, {3, 4} => nil,
-        {4, 4} => nil, {5, 4} => nil, {6, 4} => nil, {7, 4} => nil,
+        [0, 4] => nil, [1, 4] => nil, [2, 4] => nil, [3, 4] => nil,
+        [4, 4] => nil, [5, 4] => nil, [6, 4] => nil, [7, 4] => nil,
 
-        {0, 5} => nil, {1, 5} => nil, {2, 5} => nil, {3, 5} => nil,
-        {4, 5} => nil, {5, 5} => nil, {6, 5} => nil, {7, 5} => nil,
+        [0, 5] => nil, [1, 5] => nil, [2, 5] => nil, [3, 5] => nil,
+        [4, 5] => nil, [5, 5] => nil, [6, 5] => nil, [7, 5] => nil,
 
         # White pawns (column 6)
-        {0, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {1, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {2, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {3, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {4, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {5, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {6, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {7, 6} => %Chess.Piece{type: :pawn, color: :white},
+        [0, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [1, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [2, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [3, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [4, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [5, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [6, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [7, 6] => %Chess.Piece{type: :pawn, owner: p1},
 
         # White pieces back row (column 7)
-        {0, 7} => %Chess.Piece{type: :dragon, color: :white},
-        {1, 7} => %Chess.Piece{type: :ninja, color: :white},
-        {2, 7} => %Chess.Piece{type: :phoenix, color: :white},
-        {3, 7} => %Chess.Piece{type: :wizard, color: :white},
-        {4, 7} => %Chess.Piece{type: :king, color: :white},
-        {5, 7} => %Chess.Piece{type: :phoenix, color: :white},
-        {6, 7} => %Chess.Piece{type: :ninja, color: :white},
-        {7, 7} => %Chess.Piece{type: :dragon, color: :white},
+        [0, 7] => %Chess.Piece{type: :dragon, owner: p1},
+        [1, 7] => %Chess.Piece{type: :ninja, owner: p1},
+        [2, 7] => %Chess.Piece{type: :phoenix, owner: p1},
+        [3, 7] => %Chess.Piece{type: :wizard, owner: p1},
+        [4, 7] => %Chess.Piece{type: :king, owner: p1},
+        [5, 7] => %Chess.Piece{type: :phoenix, owner: p1},
+        [6, 7] => %Chess.Piece{type: :ninja, owner: p1},
+        [7, 7] => %Chess.Piece{type: :dragon, owner: p1},
       }
     }
   end
 
   # Add a test board setup for debugging
-  def testboard() do
+  def testboard(p1, p2) do
     %Chess.Board{
       width: 8, height: 8, cells: %{
         # Just a few pieces for testing
-        {0, 0} => %Chess.Piece{type: :dragon, color: :black},
-        {4, 0} => %Chess.Piece{type: :king, color: :black},
-        {7, 0} => %Chess.Piece{type: :wizard, color: :black},
+        [0, 0] => %Chess.Piece{type: :dragon, owner: p2},
+        [4, 0] => %Chess.Piece{type: :king, owner: p2},
+        [7, 0] => %Chess.Piece{type: :wizard, owner: p2},
         
-        {0, 1} => %Chess.Piece{type: :pawn, color: :black},
-        {4, 1} => %Chess.Piece{type: :phoenix, color: :black},
-        {7, 1} => %Chess.Piece{type: :ninja, color: :black},
+        [0, 1] => %Chess.Piece{type: :pawn, owner: p2},
+        [4, 1] => %Chess.Piece{type: :phoenix, owner: p2},
+        [7, 1] => %Chess.Piece{type: :ninja, owner: p2},
 
-        {3, 3} => %Chess.Piece{type: :dragon, color: :white},
-        {4, 4} => %Chess.Piece{type: :wizard, color: :white},
+        [3, 3] => %Chess.Piece{type: :dragon, owner: p1},
+        [4, 4] => %Chess.Piece{type: :wizard, owner: p1},
         
-        {0, 6} => %Chess.Piece{type: :pawn, color: :white},
-        {4, 6} => %Chess.Piece{type: :phoenix, color: :white},
-        {7, 6} => %Chess.Piece{type: :ninja, color: :white},
+        [0, 6] => %Chess.Piece{type: :pawn, owner: p1},
+        [4, 6] => %Chess.Piece{type: :phoenix, owner: p1},
+        [7, 6] => %Chess.Piece{type: :ninja, owner: p1},
         
-        {0, 7} => %Chess.Piece{type: :dragon, color: :white},
-        {4, 7} => %Chess.Piece{type: :king, color: :white},
-        {7, 7} => %Chess.Piece{type: :wizard, color: :white},
+        [0, 7] => %Chess.Piece{type: :dragon, owner: p1},
+        [4, 7] => %Chess.Piece{type: :king, owner: p1},
+        [7, 7] => %Chess.Piece{type: :wizard, owner: p1},
       }
     }
   end

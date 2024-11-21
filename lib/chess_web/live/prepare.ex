@@ -1,33 +1,35 @@
 defmodule ChessWeb.Live.Prepare do
   use ChessWeb, :live_view
 
-  defp piece_inventory() do # replace this function in the future
-    [%Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
-     %Chess.Piece{color: :black, type: :pawn},
+  defp piece_inventory(o) do # replace this function in the future
+    [%Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
+     %Chess.Piece{type: :pawn, owner: o},
 
-     %Chess.Piece{color: :black, type: :rook},
-     %Chess.Piece{color: :black, type: :knight},
-     %Chess.Piece{color: :black, type: :bishop},
-     %Chess.Piece{color: :black, type: :queen},
-     %Chess.Piece{color: :black, type: :king},
-     %Chess.Piece{color: :black, type: :bishop},
-     %Chess.Piece{color: :black, type: :knight},
-     %Chess.Piece{color: :black, type: :rook}]
+     %Chess.Piece{type: :rook, owner: o},
+     %Chess.Piece{type: :knight, owner: o},
+     %Chess.Piece{type: :bishop, owner: o},
+     %Chess.Piece{type: :queen, owner: o},
+     %Chess.Piece{type: :king, owner: o},
+     %Chess.Piece{type: :bishop, owner: o},
+     %Chess.Piece{type: :knight, owner: o},
+     %Chess.Piece{type: :rook, owner: o}]
   end
 
   @impl true
-  def mount(_, _session, socket) do
+  def mount(_, session, socket) do
     if (connected?(socket)) do
       # TODO: fetch game from server with id
       IO.puts "ChessWeb.Live.Prepare.mount(): connected"
+      user = current_user(session)
       {:ok, socket |> assign(:board, Chess.Board.Presets.empty(8, 8))
-                   |> assign(:inventory, piece_inventory())}
+                   |> assign(:current_user, user) # why doesn't the :browser pipeline do this?
+                   |> assign(:inventory, piece_inventory(:black))}
     else
       IO.puts "ChessWeb.Live.Prepare.mount(): waiting to connect"
       {:ok, socket}
@@ -36,7 +38,7 @@ defmodule ChessWeb.Live.Prepare do
 
   @impl true
   def render(assigns) do
-    IO.inspect assigns[:board];
+#    IO.inspect assigns[:board];
 
     if assigns[:board]  == nil do
 ~H"""
@@ -53,8 +55,15 @@ defmodule ChessWeb.Live.Prepare do
 <%= if assigns[:piece] do %>
     <p>Piece: <%= assigns[:piece] %></p>
 <% else %>
-    <p>No space selected</p>
+    <p>No piece selected</p>
 <% end %>
+<br>
+<%= if assigns[:current_user] do %>
+    <p>You are: <%= assigns[:current_user].email %></p>
+<% else %>
+    <p>Not logged in</p>
+<% end %>
+
 
 <label for="inventory">Available pieces:</label>
 <table id="inventory" class="square cursor-pointer">
@@ -62,7 +71,7 @@ defmodule ChessWeb.Live.Prepare do
         <%= for {p, i} <- Enum.with_index(assigns[:inventory]) do %>
             <td phx-click="click_piece"
 	        phx-value-i={i}>
-	        <%= Chess.Piece.glyphs()[p.color][p.type] %>
+	        <%= Chess.Piece.glyphs()[p.owner][p.type] %>
 	    </td>
         <% end %>
     </tr>
@@ -78,7 +87,7 @@ defmodule ChessWeb.Live.Prepare do
 	    class="w-[1em] border-2 border-black">
 	        <%=
                 if piece = assigns[:board].cells[{col, row}] do
-                    Chess.Piece.glyphs()[piece.color][piece.type]
+                    Chess.Piece.glyphs()[piece.owner][piece.type]
                 else
 	            "\u00A0"
                 end
@@ -116,5 +125,14 @@ defmodule ChessWeb.Live.Prepare do
     # space taken/piece not selected -> return piece to inventory
 
     { :noreply, socket |> assign(:space, {row, col}) }
+  end
+
+  defp current_user(session) do
+    case session["user_token"] do
+      nil ->
+	nil
+      t ->
+	Chess.Accounts.get_user_by_session_token(t)
+    end
   end
 end

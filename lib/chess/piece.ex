@@ -5,7 +5,8 @@ defmodule Chess.Piece do
 
   schema "pieces" do
     field :type, Ecto.Enum, values: [:rook, :knight, :bishop, :queen, :king, :pawn]
-    field :color, Ecto.Enum, values: [:white, :black]
+    field :origin, {:array, :integer}
+    belongs_to :owner, Chess.Accounts.User
 
     timestamps(type: :utc_datetime)
   end
