@@ -14,7 +14,6 @@ defmodule Chess.Board do
       # If there is an enemy piece, add it to the capture pile
       if piece_to_capture != nil and piece_to_capture.color != cells[from].color do
         updated_capture_piles = capture_piece(capture_piles, piece_to_capture)
-        IO.inspect(updated_capture_piles, label: "Updated Capture Piles")
         _board = %{board | capture_piles: updated_capture_piles}
       end
 

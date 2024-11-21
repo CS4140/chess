@@ -3,9 +3,9 @@ defmodule Chess.Piece do
 #  import Ecto.Changeset
 #  alias Chess.{Board, Repo, Accounts}
 
-  schema "startconfigurations" do
+  schema "pieces" do
     field :type, Ecto.Enum, values: [:rook, :knight, :bishop, :queen, :king, :pawn]
-    field :color, :string
+    field :color, Ecto.Enum, values: [:white, :black]
 
     timestamps(type: :utc_datetime)
   end
