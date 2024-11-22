@@ -19,10 +19,23 @@ defmodule Chess.Board do
 #      end
 
       # Move the piece and clear the old position
-      %{board | cells: %{cells | to => cells[from], from => nil}}
+      board = %{board | cells: %{cells | to => cells[from], from => nil}}
+
+      # Check for checkmate after moving
+      if checkmate?(board, get_opponent_color(cells[to].color)) do
+        IO.puts("Checkmate detected!")
+      end
+
+      board
     end
   end
 
+  defp checkmate?(board, color) do
+    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and piece.color == color end), fn {pos, piece} ->
+      Chess.Piece.possible_moves(board, piece, pos) == []
+    end)
+  end
+  
   def set_piece(board = %Chess.Board{cells: cells}, piece, pos) do
     %{board | cells: %{cells | pos => piece}}
   end
