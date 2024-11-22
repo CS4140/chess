@@ -18,16 +18,16 @@ defmodule Chess.Piece do
   def glyphs() do
     %{:white =>
         %{:rook => "♖", :knight => "♘", :bishop => "♗", :queen => "♕", :king => "♔", :pawn => "♙",
-	  :dragon => "🐉", 
-	  :wizard => "🧙‍♂️",
-	  :ninja => "🥷",  
-	  :phoenix => "🦅"},
+          :dragon => "🐉",    
+          :wizard => "🧙‍♂️",    
+          :ninja => "🥷",     
+          :phoenix => "🦅"},
       :black =>
         %{:rook => "♜", :knight => "♞", :bishop => "♝", :queen => "♛", :king => "♚", :pawn => "♟",
-          :dragon => "🐉",
-          :wizard => "🧙‍♂️",
-          :ninja => "🥷",
-          :phoenix => "🦅"}
+          :dragon => "🐲",    # Changed to green dragon
+          :wizard => "🧙🏿‍♂️",   # Changed to dark skin tone wizard
+          :ninja => "👤",     # Changed to silhouette
+          :phoenix => "🦢"}   # Changed to black swan
     }
   end
 end
