@@ -4,9 +4,32 @@ defmodule Chess.Board.Presets do
       width: cols, height: rows, cells:
       Map.new(
 	List.flatten(
-	  for row <- 0..rows, do: (for col <- 0..cols, do: {row, col})
+	  for row <- 0..rows, do: (for col <- 0..cols, do: [row, col])
 	),
-	fn c -> {c, nil} end)
+	fn p -> {p, nil} end)
+    }
+  end
+
+  def emptysmall do
+    %Chess.Board{
+      width: 4, height: 4, cells: %{
+	[0, 0] => nil,
+	[1, 0] => nil,
+	[2, 0] => nil,
+	[3, 0] => nil,
+	[0, 1] => nil,
+	[1, 1] => nil,
+	[2, 1] => nil,
+	[3, 1] => nil,
+	[0, 2] => nil,
+	[1, 2] => nil,
+	[2, 2] => nil,
+	[3, 2] => nil,
+	[0, 3] => nil,
+	[1, 3] => nil,
+	[2, 3] => nil,
+	[3, 3] => nil
+      }
     }
   end
 

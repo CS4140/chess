@@ -30,7 +30,7 @@ defmodule ChessWeb.Live.Interactive do
 	{:ok, socket |> redirect(to: "/play") }
       end
     else
-      Logger.info "Not connected with ID"
+      Logger.info "Waiting to connect with ID"
       {:ok, socket}
     end
   end
@@ -56,7 +56,7 @@ defmodule ChessWeb.Live.Interactive do
                    |> assign(:player_color, :white)
                    |> assign_current_user(session)} # why doesn't the :browser pipeline do this?
     else
-      Logger.info "Not connected no ID"
+      Logger.info "Waiting to connect no ID"
       {:ok, socket}
     end
   end

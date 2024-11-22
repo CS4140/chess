@@ -23,6 +23,10 @@ defmodule Chess.Board do
     end
   end
 
+  def set_piece(board = %Chess.Board{cells: cells}, piece = %Chess.Piece{}, pos) do
+    %{board | cells: %{cells | pos => piece}}
+  end
+
 #  # Function to handle adding a captured piece to the capture pile
 #  defp capture_piece(capture_piles, piece) do
 #    # Add the captured piece to the appropriate capture pile

@@ -1,10 +1,14 @@
+# This is the piece database schema _and_ struct used for games. Functions for
+# manipulating pieces during a game are in Chess.Piece.Moves, and functions for
+# storing/retrieving pieces in the database are in Chess.Piece.Inventory
+
 defmodule Chess.Piece do
   use Ecto.Schema
 #  import Ecto.Changeset
 #  alias Chess.{Board, Repo, Accounts}
 
-  schema "pieces" do
-    field :type, Ecto.Enum, values: [:rook, :knight, :bishop, :queen, :king, :pawn]
+  schema "pieceinventory" do
+    field :type, Ecto.Enum, values: [:rook, :knight, :bishop, :queen, :king, :pawn, :dragon, :wizard, :ninja, :phoenix]
     field :origin, {:array, :integer}
     belongs_to :owner, Chess.Accounts.User
 

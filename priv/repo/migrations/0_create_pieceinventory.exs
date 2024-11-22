@@ -1,8 +1,8 @@
-defmodule Chess.Repo.Migrations.CreatePieces do
+defmodule Chess.Repo.Migrations.CreatePieceInventory do
   use Ecto.Migration
 
   def change do
-    create table(:pieces) do
+    create table(:pieceinventory) do
       add :type, :string
       add :origin, :binary # coordinate tuple
       add :owner_id, references(:users, on_delete: :nothing), primary_key: true
