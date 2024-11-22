@@ -3,3 +3,4 @@ deps/
 *.db*
 lib/testing.ex
 priv/static
+mix.lock
