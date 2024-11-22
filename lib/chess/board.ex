@@ -22,7 +22,7 @@ defmodule Chess.Board do
       board = %{board | cells: %{cells | to => cells[from], from => nil}}
 
       # Check for checkmate after moving
-      if checkmate?(board, get_opponent_color(cells[to].color)) do
+      if checkmate?(board, cells[from].owner) do
         IO.puts("Checkmate detected!")
       end
 
@@ -30,9 +30,9 @@ defmodule Chess.Board do
     end
   end
 
-  defp checkmate?(board, color) do
-    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and piece.color == color end), fn {pos, piece} ->
-      Chess.Piece.possible_moves(board, piece, pos) == []
+  defp checkmate?(board, %Chess.Accounts.User{id: player_id}) do
+    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and piece.owner_id == player_id end), fn {pos, piece} ->
+      Chess.Piece.Moves.get(board, piece, pos) == []
     end)
   end
   
@@ -44,11 +44,12 @@ defmodule Chess.Board do
     %{board | cells: %{cells | pos => piece}}
   end
 
+  def set_pieces(board = %Chess.Board{}, []), do: board
+
   def set_pieces(board = %Chess.Board{cells: cells}, pieces) do
-    IO.inspect pieces, label: "pieces"
     set_pieces(
       %{board | cells: %{cells | List.first(pieces).origin => List.first(pieces)}},
-      List.delete(pieces, 1)
+      List.delete_at(pieces, 0)
     )
   end
 

@@ -15,9 +15,9 @@ defmodule ChessWeb.Live.Prepare do
       if (connected?(socket)) do
 	# Logger.info "ChessWeb.Live.Prepare.mount(): connected"
 	
-	{:ok, socket |> assign(:board, Board.Presets.emptysmall)
+	{:ok, socket |> assign(:board, Chess.Piece.Inventory.get_board(Board.Presets.emptysmall, user))
                      |> assign(:current_user, user.id) # why doesn't the :browser pipeline do this?
-                     |> assign(:inventory, Chess.Piece.Inventory.get(user))}
+                     |> assign(:inventory, Chess.Piece.Inventory.get_floating(user))}
       else
 	# Logger.info "ChessWeb.Live.Prepare.mount(): waiting to connect"
 	{:ok, socket |> assign(:current_user, user)}
@@ -146,7 +146,7 @@ defmodule ChessWeb.Live.Prepare do
 	# Logger.info "piece not selected and space full"
 	socket |> assign(:space, nil)
 	|> assign(:board, Board.set_piece(board, nil, space))
-	|> assign(:inventory, [ board.cells[space] | inventory ])
+	|> assign(:inventory, [ %{board.cells[space] | origin: nil} | inventory ])
 	#|> assign(:piece, 0)
       board.cells[space] == nil ->
 	# Logger.info "piece selected and empty space"
