@@ -1,4 +1,3 @@
-
 defmodule ChessWeb.Router do
   use ChessWeb, :router
 
@@ -18,17 +17,17 @@ defmodule ChessWeb.Router do
     plug :accepts, ["json"]
   end
 
-
   scope "/", ChessWeb do
     pipe_through :browser
     get "/", PageController, :home
 
+    # These routes are for the Interactive and CrazyChess game modes
     live "/play", Live.Interactive
-    live "/play/:id", Live.Interactive
+    live "/play/:game_id", Live.GameLive, :show  # <-- This is the game room with dynamic game_id
     live "/play2", Live.Interactive2
 
     live "/crazy", Live.CrazyChess
-    live "/crazy/:id", Live.CrazyChess
+    live "/crazy/:game_id", Live.CrazyChess, :show  # <-- Similar for crazy chess game mode with dynamic game_id
 
     live "/prepare", Live.Prepare
   end
@@ -40,11 +39,6 @@ defmodule ChessWeb.Router do
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:chess, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
@@ -72,9 +66,7 @@ defmodule ChessWeb.Router do
 
   scope "/", ChessWeb do
     pipe_through [:browser, :require_authenticated_user]
-    
-#remove!    get "/games", GameController, :index
-#remove!    resources "/games", GameController
+
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
