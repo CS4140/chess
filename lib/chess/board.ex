@@ -44,11 +44,12 @@ defmodule Chess.Board do
     %{board | cells: %{cells | pos => piece}}
   end
 
+  def set_pieces(board = %Chess.Board{}, []), do: board
+
   def set_pieces(board = %Chess.Board{cells: cells}, pieces) do
-    IO.inspect pieces, label: "pieces"
     set_pieces(
       %{board | cells: %{cells | List.first(pieces).origin => List.first(pieces)}},
-      List.delete(pieces, 1)
+      List.delete_at(pieces, 0)
     )
   end
 
