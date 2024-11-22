@@ -215,17 +215,6 @@ defmodule ChessWeb.Live.CrazyChess do
     end
   end
 
-  # Handle incoming moves from PubSub
-  @impl true
-  def handle_info({:move_made, %{board: new_board, turn: new_turn}}, socket) do
-    Logger.info("Received move broadcast in crazy chess")
-    {:noreply, socket
-      |> assign(:board, new_board)
-      |> assign(:turn, new_turn)
-      |> assign(:selected_square, nil)
-      |> assign(:valid_moves, [])}
-  end
-
   # Handle move broadcasts
   @impl true
   def handle_event("broadcast_move", %{"from" => from, "to" => to}, socket) do
@@ -235,6 +224,17 @@ defmodule ChessWeb.Live.CrazyChess do
       to: to,
       player: socket.assigns.player_color
     })}
+  end
+
+  # Handle incoming moves from PubSub
+  @impl true
+  def handle_info({:move_made, %{board: new_board, turn: new_turn}}, socket) do
+    Logger.info("Received move broadcast in crazy chess")
+    {:noreply, socket
+      |> assign(:board, new_board)
+      |> assign(:turn, new_turn)
+      |> assign(:selected_square, nil)
+      |> assign(:valid_moves, [])}
   end
 
   defp generate_game_id do

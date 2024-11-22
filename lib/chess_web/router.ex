@@ -22,15 +22,20 @@ defmodule ChessWeb.Router do
   scope "/", ChessWeb do
     pipe_through :browser
     get "/", PageController, :home
-#    resources "/chess_games", ChessGameController, only: [:show, :index, :new, :create]
-#    post "/chess_games/move", ChessGameController, :make_move
-    live "/auto", Live.Auto
-    live "/play/:id", Live.Interactive
+
     live "/play", Live.Interactive
+    live "/play/:id", Live.Interactive
+    live "/play2", Live.Interactive2
+
     live "/crazy", Live.CrazyChess
     live "/crazy/:id", Live.CrazyChess
+<<<<<<< HEAD
     live "/play2", Live.Interactive2
     live "/play2/:id", Live.Interactive2
+=======
+
+    live "/prepare", Live.Prepare
+>>>>>>> 6ff6ef6b61d98ca5b773687199010d3012dd778a
   end
 
   # Other scopes may use custom stacks.
