@@ -15,7 +15,7 @@ defmodule ChessWeb.Live.Prepare do
       if (connected?(socket)) do
 	# Logger.info "ChessWeb.Live.Prepare.mount(): connected"
 	
-	{:ok, socket |> assign(:board, Chess.Piece.Inventory.get_board(Chess.Board.Presets.emptysmall, user))
+	{:ok, socket |> assign(:board, Board.Presets.emptysmall)
                      |> assign(:current_user, user.id) # why doesn't the :browser pipeline do this?
                      |> assign(:inventory, Chess.Piece.Inventory.get(user))}
       else
@@ -119,14 +119,16 @@ defmodule ChessWeb.Live.Prepare do
     { :noreply, socket |> assign(:piece, nil) |> assign(:space, nil) }
   end
 
+  # This should use a changeset
   def handle_event("save", %{"current-user" => id},
                    socket = %Socket{assigns: %{board: board, inventory: inventory}}) do
     Repo.delete_all(from p in Chess.Piece, where: p.owner_id == ^id);
+
     Enum.each(inventory, &Repo.insert/1);
+
     Enum.filter(board.cells, fn {_, piece} -> piece != nil end)
-    |> Enum.map(fn {space, piece} -> %{ piece | owner_id: String.to_integer(id) } end)
+    |> Enum.map(fn {space, piece} -> %{ piece | origin: space, owner_id: String.to_integer(id) } end)
     |> Enum.each(&Repo.insert/1);
-#    |> Enum.each(fn piece -> IO.inspect piece, label: "A" end);
 
     { :noreply, socket |> assign(:piece, nil) |> assign(:space, nil) |> redirect(to: "/prepare") }
   end
@@ -140,25 +142,22 @@ defmodule ChessWeb.Live.Prepare do
       piece == nil && board.cells[space] == nil ->
 	# Logger.info "piece not selected and empty space"
 	socket
-      piece && board.cells[space] == nil ->
-	# Logger.info "piece selected and empty space"
-	socket |> assign(:piece, nil) |> assign(:space, nil)
-	|> assign(:inventory, List.delete_at(inventory, piece))
-	|> assign(:board, Board.set_piece(board, Enum.at(inventory, piece), space))
       piece == nil && board.cells[space] ->
 	# Logger.info "piece not selected and space full"
 	socket |> assign(:space, nil)
 	|> assign(:board, Board.set_piece(board, nil, space))
 	|> assign(:inventory, [ board.cells[space] | inventory ])
 	#|> assign(:piece, 0)
-      piece && board.cells[space] ->
+      board.cells[space] == nil ->
 	# Logger.info "piece selected and empty space"
+	socket |> assign(:piece, nil) |> assign(:space, nil)
+	|> assign(:inventory, List.delete_at(inventory, piece))
+	|> assign(:board, Board.set_piece(board, Enum.at(inventory, piece), space))
+      board.cells[space] ->
+	# Logger.info "piece selected and space full"
 	socket |> assign(:piece, nil) |> assign(:space, nil)
 	|> assign(:board, Board.set_piece(board, Enum.at(inventory, piece), space))
 	|> assign(:inventory, [ board.cells[space] | List.delete_at(inventory, piece) ])
-      true ->
-	# Logger.info "piece not selected and empty space"
-	socket
     end
   end
 

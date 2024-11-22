@@ -27,6 +27,18 @@ defmodule Chess.Board do
     %{board | cells: %{cells | pos => piece}}
   end
 
+  def set_piece(board = %Chess.Board{cells: cells}, piece = %Chess.Piece{origin: pos}) do
+    %{board | cells: %{cells | pos => piece}}
+  end
+
+  def set_pieces(board = %Chess.Board{cells: cells}, pieces) do
+    IO.inspect pieces, label: "pieces"
+    set_pieces(
+      %{board | cells: %{cells | List.first(pieces).origin => List.first(pieces)}},
+      List.delete(pieces, 1)
+    )
+  end
+
 #  # Function to handle adding a captured piece to the capture pile
 #  defp capture_piece(capture_piles, piece) do
 #    # Add the captured piece to the appropriate capture pile
