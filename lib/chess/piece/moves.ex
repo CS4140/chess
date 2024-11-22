@@ -16,16 +16,26 @@ defmodule Chess.Piece.Moves do
     moves
   end
 
-  # Wizard movements (Teleport anywhere empty or capturable)
+  # Wizard movements (Teleport anywhere)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :wizard, owner: owner},
-          [row, col]) do
+                    %Chess.Piece{type: :wizard, owner: owner, origin: origin},
+                    [row, col]) do
     Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
-    moves = for r <- 0..7,
-      c <- 0..7,
-    [r, c] != [row, col],
-      cells[[r, c]] == nil || cells[[r, c]].owner != owner,
-      do: [r, c]
+    moves = if [row, col] != origin do
+      # After first move - can move to any square not occupied by friendly piece
+      for r <- 0..7,
+          c <- 0..7,
+          [r, c] != [row, col],
+          cells[[r, c]] == nil || cells[[r, c]].owner != owner,
+          do: [r, c]
+    else
+      # First move - can only move to empty squares
+      for r <- 0..7,
+          c <- 0..7,
+          [r, c] != [row, col],
+          cells[[r, c]] == nil,
+          do: [r, c]
+    end
     Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
   end
