@@ -23,7 +23,7 @@ defmodule Chess.Board do
     end
   end
 
-  def set_piece(board = %Chess.Board{cells: cells}, piece = %Chess.Piece{}, pos) do
+  def set_piece(board = %Chess.Board{cells: cells}, piece, pos) do
     %{board | cells: %{cells | pos => piece}}
   end
 
