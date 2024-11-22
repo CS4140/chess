@@ -21,36 +21,20 @@ defmodule ChessWeb.Router do
     pipe_through :browser
     get "/", PageController, :home
 
-    # These routes are for the Interactive and CrazyChess game modes
+    # Routes for the Interactive and CrazyChess game modes
     live "/play", Live.Interactive
-    live "/play/:game_id", Live.GameLive, :show  # <-- This is the game room with dynamic game_id
+    live "/play/:game_id", Live.GameLive, :show  # Game room with dynamic game_id
     live "/play2", Live.Interactive2
+    live "/play2/:id", Live.Interactive2
 
     live "/crazy", Live.CrazyChess
-    live "/crazy/:game_id", Live.CrazyChess, :show  # <-- Similar for crazy chess game mode with dynamic game_id
+    live "/crazy/:id", Live.CrazyChess, :show  # CrazyChess game with dynamic game_id
 
+    live "/war", Live.War
     live "/prepare", Live.Prepare
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", ChessWeb do
-  #   pipe_through :api
-  # end
-
-  # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:chess, :dev_routes) do
-    import Phoenix.LiveDashboard.Router
-
-    scope "/dev" do
-      pipe_through :browser
-
-      live_dashboard "/dashboard", metrics: ChessWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
-  end
-
-  ## Authentication routes
-
+  # Authentication routes
   scope "/", ChessWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
@@ -64,6 +48,7 @@ defmodule ChessWeb.Router do
     put "/users/reset_password/:token", UserResetPasswordController, :update
   end
 
+  # Authenticated user routes
   scope "/", ChessWeb do
     pipe_through [:browser, :require_authenticated_user]
 
@@ -72,6 +57,7 @@ defmodule ChessWeb.Router do
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
   end
 
+  # General user routes
   scope "/", ChessWeb do
     pipe_through [:browser]
 
@@ -82,4 +68,15 @@ defmodule ChessWeb.Router do
     post "/users/confirm/:token", UserConfirmationController, :update
   end
 
+  # Enable LiveDashboard and Swoosh mailbox preview in development
+  if Application.compile_env(:chess, :dev_routes) do
+    import Phoenix.LiveDashboard.Router
+
+    scope "/dev" do
+      pipe_through :browser
+
+      live_dashboard "/dashboard", metrics: ChessWeb.Telemetry
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
 end
