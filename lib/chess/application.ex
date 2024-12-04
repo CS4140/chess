@@ -19,8 +19,6 @@ defmodule Chess.Application do
       {DynamicSupervisor, name: Chess.GameSupervisor},
       # Game state management
       Chess.GameState,
-      # Matchmaker for pairing players
-      Chess.Matchmaker,
       # Endpoint should typically be last
       ChessWeb.Endpoint
     ]
