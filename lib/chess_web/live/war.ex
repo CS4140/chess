@@ -129,7 +129,7 @@ defmodule ChessWeb.Live.War do
             let seconds = 0;
             const timerElement = document.getElementById("timer-display");
 
-            if (timerElement) {
+            if ( timerElement) {
               setInterval(() => {
                 seconds += 1;
                 timerElement.textContent = `Time elapsed: ${seconds} seconds`;
