@@ -80,6 +80,15 @@ defmodule ChessWeb.Live.War do
               <div>Waiting for opponent...</div>
             <% end %>
           </div>
+
+	  <!-- Invite Link Section -->
+            <div class="text-center mb-4">
+              <div>Invite a friend to join:</div>
+              <a href="<%= @invite_link %>" target="_blank" class="btn btn-primary">
+                Share this link
+              </a>
+            </div>
+
         <% end %>
         <div class="chess-board" phx-hook="Game" id="game-board" data-game-id={@game}>
           <%= for row <- 0..23 do %>
