@@ -86,6 +86,14 @@ defmodule ChessWeb.Live.CrazyChess do
         </div>
       <% end %>
 
+      <!-- Invite Link Section -->
+      <div class="text-center mb-4">
+        <div>Invite a friend to join:</div>
+        <a href="<%= @invite_link %>" target="_blank" class="btn btn-primary">
+          Share this link
+        </a>
+      </div>
+
       <div class="chess-board" phx-hook="Game" id="game-board" data-game-id={@game}>
         <%= for row <- 0..7 do %>
           <div class="row">
