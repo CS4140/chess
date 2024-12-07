@@ -16,6 +16,10 @@ defmodule ChessWeb.Live.War do
 	Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{id}")
 	
 	Logger.info("Found existing game (#{id})")
+
+	# Generate the invite link for the game
+        invite_link = Routes.live_path(socket, ChessWeb.Live.War, id)
+	
 	{:ok, socket |> assign(:game, id)
                      |> assign(:board, game_state.board)
                      |> assign(:turn, :black)
