@@ -4,6 +4,13 @@ defmodule Chess.Board do
             cells: %{},  # {coordinate} => %Chess.Piece{}
             capture_piles: %{black: [], white: []}  # Capture piles for both colors
 
+
+  defp checkmate?(board, owner) do
+    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and owner == owner end), fn {pos, piece} ->
+      Chess.Piece.Moves.get(board, piece, pos) == []
+    end)
+  end
+  
   # Modify make_move to handle capturing a piece
   def make_move(board = %Chess.Board{cells: cells, capture_piles: _capture_piles}, to, from) do
     if to == from do
@@ -30,12 +37,6 @@ defmodule Chess.Board do
     end
   end
 
-  defp checkmate?(board, %Chess.Accounts.User{id: player_id}) do
-    Enum.all?(Enum.filter(board.cells, fn {_pos, piece} -> piece != nil and piece.owner_id == player_id end), fn {pos, piece} ->
-      Chess.Piece.Moves.get(board, piece, pos) == []
-    end)
-  end
-  
   def set_piece(board = %Chess.Board{cells: cells}, piece, pos) do
     %{board | cells: %{cells | pos => piece}}
   end

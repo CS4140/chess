@@ -6,8 +6,8 @@ defmodule Chess.Piece.Moves do
 
   # Dragon movements (Queen + Knight)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :dragon, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :dragon, owner: owner},
+    [row, col]) do
     Logger.info("Calculating Dragon moves from {#{row}, #{col}}")
     queen_moves = get_queen_moves(cells, [row, col], owner)
     knight_moves = get_knight_moves(cells, [row, col], owner)
@@ -16,34 +16,24 @@ defmodule Chess.Piece.Moves do
     moves
   end
 
-  # Wizard movements (Teleport anywhere)
+  # Wizard movements (Teleport anywhere empty or capturable)
   def get(%Chess.Board{cells: cells},
-                    %Chess.Piece{type: :wizard, owner: owner, origin: origin},
-                    [row, col]) do
+    %Chess.Piece{type: :wizard, owner: owner},
+    [row, col]) do
     Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
-    moves = if [row, col] != origin do
-      # After first move - can move to any square not occupied by friendly piece
-      for r <- 0..7,
-          c <- 0..7,
-          [r, c] != [row, col],
-          cells[[r, c]] == nil || cells[[r, c]].owner != owner,
-          do: [r, c]
-    else
-      # First move - can only move to empty squares
-      for r <- 0..7,
-          c <- 0..7,
-          [r, c] != [row, col],
-          cells[[r, c]] == nil,
-          do: [r, c]
-    end
+    moves = for r <- 0..7,
+      c <- 0..7,
+    [r, c] != [row, col],
+      cells[[r, c]] == nil || cells[[r, c]].owner != owner,
+      do: [r, c]
     Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
   end
 
   # Ninja movements (Knight + Adjacent)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :ninja, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :ninja, owner: owner},
+    [row, col]) do
     Logger.info("Calculating Ninja moves from {#{row}, #{col}}")
     knight_moves = get_knight_moves(cells, [row, col], owner)
     adjacent_moves = get_adjacent_moves(cells, [row, col], owner)
@@ -54,8 +44,8 @@ defmodule Chess.Piece.Moves do
 
   # Phoenix movements (Jumping diagonals)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :phoenix, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :phoenix, owner: owner},
+    [row, col]) do
     Logger.info("Calculating Phoenix moves from {#{row}, #{col}}")
     moves = get_diagonal_jumping_moves(cells, [row, col], owner)
     Logger.info("Phoenix can move to: #{inspect(moves)}")
@@ -64,8 +54,8 @@ defmodule Chess.Piece.Moves do
 
   # King movements (One square in any direction)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :king, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :king, owner: owner},
+    [row, col]) do
     Logger.info("Calculating King moves from {#{row}, #{col}}")
     moves = get_adjacent_moves(cells, [row, col], owner)
     Logger.info("King can move to: #{inspect(moves)}")
@@ -74,8 +64,8 @@ defmodule Chess.Piece.Moves do
 
   # Pawn movements
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :pawn, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :pawn, owner: owner},
+    [row, col]) do
     Logger.info("Calculating Pawn moves from {#{row}, #{col}}")
     direction = if owner == :white, do: -1, else: 1
     start_col = if owner == :white, do: 6, else: 1
@@ -109,6 +99,82 @@ defmodule Chess.Piece.Moves do
       moves
   end
 
+  def get(%Chess.Board{cells: cells},
+    %Chess.Piece{owner: owner, type: :rook},
+    [row, col]) do
+    IO.puts("\n=== Rook Move Calculation ===")
+    IO.inspect([row, col, owner], label: "Calculating moves for rook")
+
+    # Calculate moves in each direction
+    directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]  # Up, Down, Right, Left
+    
+    moves = Enum.flat_map(directions, fn [row_dir, col_dir] ->
+      find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
+    end)
+
+    IO.inspect(moves, label: "Valid rook moves")
+    moves
+  end
+
+  def get(%Chess.Board{cells: cells},
+    %Chess.Piece{owner: owner, type: :bishop},
+    [row, col]) do
+    IO.puts("\n=== Bishop Move Calculation ===")
+    IO.inspect({row, col, owner}, label: "Calculating moves for bishop")
+
+    # Calculate moves in diagonal directions
+    directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
+    
+    moves = Enum.flat_map(directions, fn [row_dir, col_dir] ->
+      find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
+    end)
+
+    IO.inspect(moves, label: "Valid bishop moves")
+    moves
+  end
+
+  def get(%Chess.Board{cells: cells},
+    %Chess.Piece{owner: owner, type: :queen},
+    [row, col]) do
+    IO.puts("\n=== Queen Move Calculation ===")
+    IO.inspect({row, col, owner}, label: "Calculating moves for queen")
+
+    # Combine rook and bishop moves
+    directions = [
+      [0, 1], [0, -1], [1, 0], [-1, 0],  # Rook moves
+      [1, 1], [1, -1], [-1, 1], [-1, -1]  # Bishop moves
+    ]
+    
+    moves = Enum.flat_map(directions, fn [row_dir, col_dir] ->
+      find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
+    end)
+
+    IO.inspect(moves, label: "Valid queen moves")
+    moves
+  end
+
+  def get(%Chess.Board{cells: cells},
+    %Chess.Piece{owner: owner, type: :knight},
+    [row, col]) do
+    IO.puts("\n=== Knight Move Calculation ===")
+    IO.inspect({row, col, owner}, label: "Calculating moves for knight")
+
+    moves = [
+      [row + 2, col + 1], [row + 2, col - 1],
+      [row - 2, col + 1], [row - 2, col - 1],
+      [row + 1, col + 2], [row + 1, col - 2],
+      [row - 1, col + 2], [row - 1, col - 2]
+    ]
+
+    valid_moves = Enum.filter(moves, fn pos ->
+      Map.has_key?(cells, pos) and
+      (cells[pos] == nil or cells[pos].owner != owner)
+    end)
+
+    IO.inspect(valid_moves, label: "Valid knight moves")
+    valid_moves
+  end
+
   # Helper functions
   defp get_queen_moves(cells, [row, col], owner) do
     directions = [
@@ -117,8 +183,8 @@ defmodule Chess.Piece.Moves do
       [1, -1],  [1, 0],  [1, 1]
     ]
     
-    Enum.flat_map(directions, fn [dr, dc] ->
-      get_line_moves(cells, [row, col], [dr, dc], owner)
+    Enum.flat_map(directions, fn {dr, dc} ->
+      get_line_moves(cells, [row, col], {dr, dc}, owner)
     end)
   end
 
@@ -148,7 +214,7 @@ defmodule Chess.Piece.Moves do
   defp get_diagonal_jumping_moves(cells, [row, col], owner) do
     directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
     
-    Enum.flat_map(directions, fn [dr, dc] = dir ->
+    Enum.flat_map(directions, fn {dr, dc} = dir ->
       Logger.info("Phoenix checking direction #{inspect(dir)}")
       moves = get_phoenix_line(cells, [row, col], [dr, dc], owner)
       Logger.info("Phoenix moves in direction #{inspect(dir)}: #{inspect(moves)}")
@@ -191,5 +257,24 @@ defmodule Chess.Piece.Moves do
 
   defp valid_position?([row, col]) do
     row >= 0 && row < 8 && col >= 0 && col < 8
+  end
+
+  # Helper function to find moves in a specific direction until blocked
+  defp find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Enum.reduce_while([], fn i, acc ->
+      new_pos = [row + (i * row_dir), col + (i * col_dir)]
+      
+      cond do
+        !Map.has_key?(cells, new_pos) ->
+          {:halt, acc}
+        cells[new_pos] == nil ->
+          {:cont, [new_pos | acc]}
+        cells[new_pos].owner != owner ->
+          {:halt, [new_pos | acc]}
+        true ->
+          {:halt, acc}
+      end
+    end)
   end
 end
