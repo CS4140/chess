@@ -19,7 +19,7 @@ defmodule ChessWeb.Live.CrazyChess do
 	Logger.info("Found existing game (#{id})")
 
 	# Generate the invite link for the game
-      	invite_link = Routes.live_path(socket, ChessWeb.Live.CrazyChess, id)
+#      	invite_link = Routes.live_path(socket, ChessWeb.Live.CrazyChess, id)
 
 	{:ok, socket |> assign(:game, id)
                      |> assign(:board, game_state.board)
@@ -46,7 +46,7 @@ defmodule ChessWeb.Live.CrazyChess do
       Logger.info "Generated new game ID: #{game_id}"
       
       # Subscribe to PubSub for game updates and save initial state
-      Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
+#      Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
       Chess.GameState.create_game(game_id, @initial_state)
       
       # Return a new game
@@ -85,14 +85,6 @@ defmodule ChessWeb.Live.CrazyChess do
           <% end %>
         </div>
       <% end %>
-
-      <!-- Invite Link Section -->
-      <div class="text-center mb-4">
-        <div>Invite a friend to join:</div>
-        <a href="<%= @invite_link %>" target="_blank" class="btn btn-primary">
-          Share this link
-        </a>
-      </div>
 
       <div class="chess-board" phx-hook="Game" id="game-board" data-game-id={@game}>
         <%= for row <- 0..7 do %>
