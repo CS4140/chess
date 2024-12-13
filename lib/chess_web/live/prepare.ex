@@ -16,7 +16,7 @@ defmodule ChessWeb.Live.Prepare do
 	# Logger.info "ChessWeb.Live.Prepare.mount(): connected"
 	
 	{:ok, socket |> assign(:board, Chess.Piece.Inventory.get_board(Board.Presets.emptysmall, user))
-                     |> assign(:current_user, user.id) # why doesn't the :browser pipeline do this?
+                     |> assign(:current_user, user.id)
                      |> assign(:inventory, Chess.Piece.Inventory.get_floating(user))}
       else
 	# Logger.info "ChessWeb.Live.Prepare.mount(): waiting to connect"

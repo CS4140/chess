@@ -37,6 +37,12 @@ defmodule Chess.Board do
     end
   end
 
+  # Return all of the pieces owned by owner on board
+  def get_pieces(%Chess.Board{cells: cells}, owner) do
+    Enum.filter(cells, fn {_, p} -> p != nil && p.owner == owner end)
+  end
+
+  # Update location to contain piece(s)
   def set_piece(board = %Chess.Board{cells: cells}, piece, pos) do
     %{board | cells: %{cells | pos => piece}}
   end
@@ -52,6 +58,10 @@ defmodule Chess.Board do
       %{board | cells: %{cells | List.first(pieces).origin => List.first(pieces)}},
       List.delete_at(pieces, 0)
     )
+  end
+
+  def get_king(%Chess.Board{cells: cells}, owner) do
+    Enum.find(cells, fn {_, p} -> p && p.type == :king && p.owner == owner end)
   end
 
 #  # Function to handle adding a captured piece to the capture pile

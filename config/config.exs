@@ -31,8 +31,8 @@ config :chess, ChessWeb.Endpoint,
   live_view: [signing_salt: "eKhToocl"],
   # Add watchers for live reloading
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:chess, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:chess, ~w(--watch)]}
+#    esbuild: {Esbuild, :install_and_run, [:chess, ~w(--sourcemap=inline --watch)]},
+#    tailwind: {Tailwind, :install_and_run, [:chess, ~w(--watch)]}
   ]
 
 # PubSub configuration

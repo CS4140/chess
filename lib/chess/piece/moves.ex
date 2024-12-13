@@ -1,31 +1,45 @@
 # To re-enable all debug messages in this file, run the following command:
-# sed 's/#IO/IO/g' -i piece.ex
+# sed 's/##IO/#IO/g' -i piece.ex
 
 defmodule Chess.Piece.Moves do
   require Logger
+
+  # Return all of the moves for a list of pieces
+  def get_all(board, pieces) do
+    Enum.flat_map(pieces, fn {l, p} -> Chess.Piece.Moves.get(board, p, l) end)
+  end
 
   # Dragon movements (Queen + Knight)
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{type: :dragon, owner: owner},
     [row, col]) do
-    Logger.info("Calculating Dragon moves from {#{row}, #{col}}")
+    #Logger.info("Calculating Dragon moves from {#{row}, #{col}}")
     queen_moves = get_queen_moves(cells, [row, col], owner)
     knight_moves = get_knight_moves(cells, [row, col], owner)
     moves = Enum.uniq(queen_moves ++ knight_moves)
-    Logger.info("Dragon can move to: #{inspect(moves)}")
+    #Logger.info("Dragon can move to: #{inspect(moves)}")
     moves
   end
 
-  # Wizard movements (Teleport anywhere empty or capturable)
   def get(%Chess.Board{cells: cells},
-    %Chess.Piece{type: :wizard, owner: owner},
-    [row, col]) do
+          %Chess.Piece{type: :wizard, owner: owner, origin: origin},
+          [row, col]) do
     Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
-    moves = for r <- 0..7,
-      c <- 0..7,
-    [r, c] != [row, col],
-      cells[[r, c]] == nil || cells[[r, c]].owner != owner,
-      do: [r, c]
+    moves = if [row, col] != origin do
+      # After first move - can move to any square not occupied by friendly piece
+      for r <- 0..7,
+        c <- 0..7,
+      [r, c] != [row, col],
+        cells[[r, c]] == nil || cells[[r, c]].owner != owner,
+        do: [r, c]
+    else
+      # First move - can only move to empty squares
+      for r <- 0..7,
+        c <- 0..7,
+      [r, c] != [row, col],
+        cells[[r, c]] == nil,
+        do: [r, c]
+    end
     Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
   end
@@ -34,11 +48,11 @@ defmodule Chess.Piece.Moves do
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{type: :ninja, owner: owner},
     [row, col]) do
-    Logger.info("Calculating Ninja moves from {#{row}, #{col}}")
+    #Logger.info("Calculating Ninja moves from {#{row}, #{col}}")
     knight_moves = get_knight_moves(cells, [row, col], owner)
     adjacent_moves = get_adjacent_moves(cells, [row, col], owner)
     moves = Enum.uniq(knight_moves ++ adjacent_moves)
-    Logger.info("Ninja can move to: #{inspect(moves)}")
+    #Logger.info("Ninja can move to: #{inspect(moves)}")
     moves
   end
 
@@ -46,9 +60,9 @@ defmodule Chess.Piece.Moves do
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{type: :phoenix, owner: owner},
     [row, col]) do
-    Logger.info("Calculating Phoenix moves from {#{row}, #{col}}")
+    #Logger.info("Calculating Phoenix moves from {#{row}, #{col}}")
     moves = get_diagonal_jumping_moves(cells, [row, col], owner)
-    Logger.info("Phoenix can move to: #{inspect(moves)}")
+    #Logger.info("Phoenix can move to: #{inspect(moves)}")
     moves
   end
 
@@ -56,9 +70,9 @@ defmodule Chess.Piece.Moves do
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{type: :king, owner: owner},
     [row, col]) do
-    Logger.info("Calculating King moves from {#{row}, #{col}}")
+    #Logger.info("Calculating King moves from {#{row}, #{col}}")
     moves = get_adjacent_moves(cells, [row, col], owner)
-    Logger.info("King can move to: #{inspect(moves)}")
+    #Logger.info("King can move to: #{inspect(moves)}")
     moves
   end
 
@@ -66,7 +80,7 @@ defmodule Chess.Piece.Moves do
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{type: :pawn, owner: owner},
     [row, col]) do
-    Logger.info("Calculating Pawn moves from {#{row}, #{col}}")
+    #Logger.info("Calculating Pawn moves from {#{row}, #{col}}")
     direction = if owner == :white, do: -1, else: 1
     start_col = if owner == :white, do: 6, else: 1
 
@@ -95,15 +109,15 @@ defmodule Chess.Piece.Moves do
     end)
 
       moves = forward_moves ++ capture_moves
-      Logger.info("Pawn can move to: #{inspect(moves)}")
+      #Logger.info("Pawn can move to: #{inspect(moves)}")
       moves
   end
 
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{owner: owner, type: :rook},
     [row, col]) do
-    IO.puts("\n=== Rook Move Calculation ===")
-    IO.inspect([row, col, owner], label: "Calculating moves for rook")
+    #IO.puts("\n=== Rook Move Calculation ===")
+    #IO.inspect([row, col, owner], label: "Calculating moves for rook")
 
     # Calculate moves in each direction
     directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]  # Up, Down, Right, Left
@@ -112,15 +126,15 @@ defmodule Chess.Piece.Moves do
       find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
     end)
 
-    IO.inspect(moves, label: "Valid rook moves")
+    #IO.inspect(moves, label: "Valid rook moves")
     moves
   end
 
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{owner: owner, type: :bishop},
     [row, col]) do
-    IO.puts("\n=== Bishop Move Calculation ===")
-    IO.inspect({row, col, owner}, label: "Calculating moves for bishop")
+    #IO.puts("\n=== Bishop Move Calculation ===")
+    #IO.inspect({row, col, owner}, label: "Calculating moves for bishop")
 
     # Calculate moves in diagonal directions
     directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
@@ -129,15 +143,15 @@ defmodule Chess.Piece.Moves do
       find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
     end)
 
-    IO.inspect(moves, label: "Valid bishop moves")
+    #IO.inspect(moves, label: "Valid bishop moves")
     moves
   end
 
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{owner: owner, type: :queen},
     [row, col]) do
-    IO.puts("\n=== Queen Move Calculation ===")
-    IO.inspect({row, col, owner}, label: "Calculating moves for queen")
+    #IO.puts("\n=== Queen Move Calculation ===")
+    #IO.inspect({row, col, owner}, label: "Calculating moves for queen")
 
     # Combine rook and bishop moves
     directions = [
@@ -149,15 +163,15 @@ defmodule Chess.Piece.Moves do
       find_moves_in_direction(cells, [row, col], [row_dir, col_dir], owner)
     end)
 
-    IO.inspect(moves, label: "Valid queen moves")
+    #IO.inspect(moves, label: "Valid queen moves")
     moves
   end
 
   def get(%Chess.Board{cells: cells},
     %Chess.Piece{owner: owner, type: :knight},
     [row, col]) do
-    IO.puts("\n=== Knight Move Calculation ===")
-    IO.inspect({row, col, owner}, label: "Calculating moves for knight")
+    #IO.puts("\n=== Knight Move Calculation ===")
+    #IO.inspect({row, col, owner}, label: "Calculating moves for knight")
 
     moves = [
       [row + 2, col + 1], [row + 2, col - 1],
@@ -171,11 +185,21 @@ defmodule Chess.Piece.Moves do
       (cells[pos] == nil or cells[pos].owner != owner)
     end)
 
-    IO.inspect(valid_moves, label: "Valid knight moves")
+    #IO.inspect(valid_moves, label: "Valid knight moves")
     valid_moves
   end
 
-  # Helper functions
+  def get(_, nil, _), do: nil
+
+  def get(board, {position, piece}) do
+    get(board, piece, position);
+  end
+
+  # Private/helper functions
+  def number_possible(board, piece, location) do
+    length(get(board, piece, location));
+  end
+
   defp get_queen_moves(cells, [row, col], owner) do
     directions = [
       [-1, -1], [-1, 0], [-1, 1],
@@ -183,8 +207,8 @@ defmodule Chess.Piece.Moves do
       [1, -1],  [1, 0],  [1, 1]
     ]
     
-    Enum.flat_map(directions, fn {dr, dc} ->
-      get_line_moves(cells, [row, col], {dr, dc}, owner)
+    Enum.flat_map(directions, fn [dr, dc] ->
+      get_line_moves(cells, [row, col], [dr, dc], owner)
     end)
   end
 
@@ -214,10 +238,10 @@ defmodule Chess.Piece.Moves do
   defp get_diagonal_jumping_moves(cells, [row, col], owner) do
     directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
     
-    Enum.flat_map(directions, fn {dr, dc} = dir ->
-      Logger.info("Phoenix checking direction #{inspect(dir)}")
+    Enum.flat_map(directions, fn [dr, dc] = _dir ->
+      #Logger.info("Phoenix checking direction #{inspect(_dir)}")
       moves = get_phoenix_line(cells, [row, col], [dr, dc], owner)
-      Logger.info("Phoenix moves in direction #{inspect(dir)}: #{inspect(moves)}")
+      #Logger.info("Phoenix moves in direction #{inspect(dir)}: #{inspect(moves)}")
       moves
     end)
   end

@@ -1,68 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crazy Chess</title>
-  <link rel="stylesheet" href={~p"/assets/css/app.css"}> <!-- Link to your CSS -->
-  <style>
-    body {
-      background-image: url(<%= ~p"/assets/Images/LandingPageBackground.jpg.JPG" %>);
-      background-size: cover;
-      background-position: center;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      color: #000000;
-    }
-    header {
-      margin: 20px 0;
-    }
-    .chess-board-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .chess-board {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 400px;
-      height: 400px;
-    }
-    .chess-board button {
-      margin: 5px;
-      padding: 20px 50px;
-      font-size: 16px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .chess-board button:hover {
-      background-color: #555;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Welcome to Crazy Chess!</h1>
-    <p>Experience chess like never before!</p>
-  </header>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · SO CRAY!">
+      <%= assigns[:page_title] || "CrazyChess" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        color: #000;
+        overflow: hidden;
+      }
+      header {
+        background-color: rgba(0, 0, 139, 0.8);
+        color: #fff;
+        padding: 1rem 0;
+        font-size: 2.5rem;
+        text-shadow: 3px 3px 0px #ff4500;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 70vh;
+        gap: 1rem;
+      }
+      .btn {
+        background-color: #ff4500;
+        border: 2px solid #000;
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 5px 5px 0px #000;
+        transition: all 0.3s;
+        text-decoration: none;
+      }
+      .btn:hover {
+        background-color: #000;
+        color: #ff4500;
+        transform: translate(-3px, -3px);
+        box-shadow: 8px 8px 0px #000;
+      }
+      footer {
+        margin-top: 2rem;
+        font-size: 1rem;
+        color: #000;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem 0;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <header>Welcome to CrazyChess!</header>
 
-  <section class="chess-board-container">
-    <div class="chess-board">
-      <button onclick="window.location.href='/prepare'">Arrange pieces</button>
-      <button onclick="window.location.href='/play'">Play Classic</button>
-      <button onclick="window.location.href='/crazy'">Play Crazy</button>
-      <button onclick="window.location.href='/war'">War Mode</button>
-    </div>
-  </section>
+    <center>
+	<form class="container">	
+	    <table>
+		<tr>
+		    <td>
+			<label for="crazy">Crazy pieces</label>
+		    </td>
+		    <td>
+			<input type="checkbox" id="crazy" name="crazy" checked>
+		    </td>
+		</tr>
+		<tr>
+		    <td>
+			<label for="crazy">Observe</label>
+		    </td>
+		    <td>
+			<input type="checkbox" id="observer" name="observer">
+		    </td>
+		</tr>
+		<tr>
+		    <td>
+			<label for="crazy">Game ID</label>
+		    </td>
+		    <td>
+			<input type="text" id="game" name="game">
+		    </td>
+		</tr>
+		<tr>
+		    <td>
+			<input type="submit" name="submit" value="go" class="btn">
+		    </td>
+		</tr>
+	    </table>
+	</form>
+    </center>
 
-  <footer>
-    <p>&copy; 2024 Crazy Chess. All rights reserved.</p>
-  </footer>
-</body>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+
+      if (!params.get("submit"))
+	  function_that_doesnt_exist_and_causes_the_script_to_crash();
+      
+      url = "/game/"
+      url += params.get("game") + "?";
+      url += params.get("crazy") ? "crazy" : "";
+      url += params.get("observer") ? "&observer" : "";
+
+      console.log(">>" + url);
+      window.location.href = url;
+    </script>
+  </body>
 </html>
