@@ -6,14 +6,9 @@ defmodule Chess.Piece.Moves do
 
   # Return all of the moves for a list of pieces
   def get_all(board, pieces) do
+   def get_all(board, pieces) do
     Enum.flat_map(pieces, fn {l, p} -> Chess.Piece.Moves.get(board, p, l) end)
   end
-
-  def get(board, {position, piece}) do
-    get(board, piece, position);
-  end
-
-  def get(_, nil, _), do: nil
 
   # Dragon movements (Queen + Knight)
   def get(%Chess.Board{cells: cells},
@@ -27,17 +22,26 @@ defmodule Chess.Piece.Moves do
     moves
   end
 
-  # Wizard movements (Teleport anywhere empty or capturable)
   def get(%Chess.Board{cells: cells},
           %Chess.Piece{type: :wizard, owner: owner},
           [row, col]) do
-    #Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
-    moves = for r <- 0..7,
-      c <- 0..7,
-    [r, c] != [row, col],
-      cells[[r, c]] == nil || cells[[r, c]].owner != owner,
-      do: [r, c]
-    #Logger.info("Wizard can move to: #{inspect(moves)}")
+    Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
+    moves = if has_moved do
+      # After first move - can move to any square not occupied by friendly piece
+      for r <- 0..7,
+          c <- 0..7,
+          {r, c} != {row, col},
+          cells[{r, c}] == nil || cells[{r, c}].color != color,
+          do: {r, c}
+    else
+      # First move - can only move to empty squares
+      for r <- 0..7,
+          c <- 0..7,
+          {r, c} != {row, col},
+          cells[{r, c}] == nil,
+          do: {r, c}
+    end
+    Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
   end
 
@@ -186,11 +190,17 @@ defmodule Chess.Piece.Moves do
     valid_moves
   end
 
+  def get(_, nil, _), do: nil
+
+  def get(board, {position, piece}) do
+    get(board, piece, position);
+  end
+
+  # Private/helper functions
   def number_possible(board, piece, location) do
     length(get(board, piece, location));
   end
 
-  # Private helper functions
   defp get_queen_moves(cells, [row, col], owner) do
     directions = [
       [-1, -1], [-1, 0], [-1, 1],
@@ -198,8 +208,8 @@ defmodule Chess.Piece.Moves do
       [1, -1],  [1, 0],  [1, 1]
     ]
     
-    Enum.flat_map(directions, fn {dr, dc} ->
-      get_line_moves(cells, [row, col], {dr, dc}, owner)
+    Enum.flat_map(directions, fn [dr, dc] ->
+      get_line_moves(cells, [row, col], [dr, dc], owner)
     end)
   end
 
@@ -229,7 +239,7 @@ defmodule Chess.Piece.Moves do
   defp get_diagonal_jumping_moves(cells, [row, col], owner) do
     directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
     
-    Enum.flat_map(directions, fn {dr, dc} = _dir ->
+    Enum.flat_map(directions, fn [dr, dc] = _dir ->
       #Logger.info("Phoenix checking direction #{inspect(_dir)}")
       moves = get_phoenix_line(cells, [row, col], [dr, dc], owner)
       #Logger.info("Phoenix moves in direction #{inspect(dir)}: #{inspect(moves)}")
