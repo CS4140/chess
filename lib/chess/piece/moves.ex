@@ -29,16 +29,16 @@ defmodule Chess.Piece.Moves do
       # After first move - can move to any square not occupied by friendly piece
       for r <- 0..7,
         c <- 0..7,
-      {r, c} != {row, col},
-        cells[{r, c}] == nil || cells[{r, c}].owner != owner,
-        do: {r, c}
+      [r, c] != [row, col],
+        cells[[r, c]] == nil || cells[[r, c]].owner != owner,
+        do: [r, c]
     else
       # First move - can only move to empty squares
       for r <- 0..7,
         c <- 0..7,
-      {r, c} != {row, col},
-        cells[{r, c}] == nil,
-        do: {r, c}
+      [r, c] != [row, col],
+        cells[[r, c]] == nil,
+        do: [r, c]
     end
     Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
