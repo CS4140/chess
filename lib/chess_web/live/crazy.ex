@@ -166,7 +166,7 @@ defmodule ChessWeb.Live.CrazyChess do
                 board: new_board,
                 turn: new_turn
               })
-              
+
               # Broadcast move using crazy chess specific topic
               Chess.PubSub.broadcast("#{@pubsub_topic_prefix}#{socket.assigns.game}", {:move_made, %{
                 from: from,

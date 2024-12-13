@@ -3,6 +3,8 @@ defmodule ChessWeb.Live.Observe do
   require Logger
 
   # Define PubSub topic prefix for regular chess games
+  @pubsub_topic_prefix "game:"
+
   @impl true
   def mount(%{"id" => id}, _session, socket) do # Entry point for existing games
     #Logger.info "Observing game with id #{id}"
