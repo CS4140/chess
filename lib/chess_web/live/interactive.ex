@@ -2,38 +2,41 @@ defmodule ChessWeb.Live.Interactive do
   use ChessWeb, :live_view
   require Logger
 
-  # Define PubSub topic prefix for regular chess games
-  @pubsub_topic_prefix "game:"
+  @initial_turn :white
 
-  @initial_state %{board: Chess.Board.Presets.standard(:white, :black), turn: :white}
+  defp initial_board(params) do
+    if Map.has_key?(params, "crazy") do
+      Chess.Board.Presets.Crazy.standard(:white, :black);
+    else
+      Chess.Board.Presets.standard(:white, :black);
+    end
+  end
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do # Entry point for existing games
-    #Logger.info "Mounting game with id #{id}"
-
+  def mount(params = %{"id" => id}, _session, socket) do
     if connected?(socket) do
-      if game_state = Chess.GameState.get_game(id) do
-	# Subscribe to PubSub for game updates
-	Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{id}")
-	
-	#Logger.info("Found existing game (#{id})")
+      game_state = Chess.GameState.get_game(id)
 
-#        invite_link = Routes.live_path(socket, ChessWeb.Live.Chess, id)
-#        invite_link = "Not done"
-	{:ok, socket |> assign(:game, id)
-                     |> assign(:board, game_state.board)
-                     |> assign(:turn, game_state.turn)
-	             |> assign(:result, nil)
-                     |> assign(:selected_square, nil)
-                     |> assign(:valid_moves, [])
-                     |> assign(:player_color, :black)}
-
-
-#	             |> assign(:invite_link, invite_link)}
-      else
-	#Logger.info "Unknown game ID"
-	{:ok, socket |> redirect(to: "/play") }
+      color = cond do
+	Map.has_key?(params, "observer") -> :observer
+	game_state -> :black
+	! game_state -> :white
       end
+
+      turn = if(game_state == :nil, do: @initial_turn, else: game_state.turn)
+      board = if(game_state == :nil, do: initial_board(params), else: game_state.board)
+
+      Chess.PubSub.subscribe("#{id}")
+      Chess.GameState.create_game(id, %{board: board, turn: turn})
+
+      {:ok, socket
+            |> assign(:game, id)
+            |> assign(:board, board)
+            |> assign(:result, nil)
+            |> assign(:turn, turn)
+            |> assign(:player_color, color)
+            |> assign(:selected_square, nil)
+            |> assign(:valid_moves, [])}
     else
       #Logger.info "Waiting to connect with ID"
       {:ok, socket}
@@ -41,32 +44,8 @@ defmodule ChessWeb.Live.Interactive do
   end
 
   @impl true
-  def mount(_params, _session, socket) do # Entry point for new games
-    #Logger.info "Mounting new game"
-
-    if connected?(socket) do
-      game_id = generate_game_id()
-      #Logger.info "Generated new game ID: #{game_id}"
-      
-      # Subscribe to PubSub for game updates and save initial state
-      Chess.PubSub.subscribe("#{@pubsub_topic_prefix}#{game_id}")
-      Chess.GameState.create_game(game_id, @initial_state)
-      
-      # Return a new game
-#      invite_link = Chess.Routes.live_path(socket, ChessWeb.Live.Chess, game_id)
-#      invite_link = "Not done"
-      {:ok, socket |> assign(:game, game_id)
-                   |> assign(:board, @initial_state.board)
-                   |> assign(:turn, @initial_state.turn)
-                   |> assign(:selected_square, nil)
-                   |> assign(:valid_moves, [])
-                   |> assign(:player_color, :white)
-	           |> assign(:incheck, false)
-	           |> assign(:result, nil)}
-    else
-      #Logger.info "Waiting to connect no ID"
-      {:ok, socket}
-    end
+  def mount(params, session, socket) do # Entry point for new games
+    mount(Map.put(params, "id", generate_game_id()), session, socket )
   end
 
   # Render function remains unchanged
@@ -155,6 +134,9 @@ defmodule ChessWeb.Live.Interactive do
   end
 
   @impl true
+  def handle_event("select_square", _, socket = %{player_color: :observer}), do: {:noreply, socket}
+
+  @impl true
   def handle_event("select_square", %{"row" => row, "col" => col}, socket) do
     if socket.assigns.turn == socket.assigns.player_color do
       position = [String.to_integer(row), String.to_integer(col)]
@@ -169,18 +151,18 @@ defmodule ChessWeb.Live.Interactive do
             new_board = Chess.Board.make_move(socket.assigns.board, position, from)
             new_turn = if(socket.assigns.turn == :white, do: :black, else: :white)
 
-	    {result, socket} = game_status(socket, new_board.cells[position], position);
+	    {result, socket} = game_status(socket, new_board.cells[position], position, socket.assigns.board);
 
             # Update game state
             Chess.GameState.create_game(socket.assigns.game, %{board: new_board, turn: new_turn})
 
             # Broadcast move using regular chess specific topic
 	    #IO.puts("Broadcasting to #{@pubsub_topic_prefix}#{socket.assigns.game}");
-            Chess.PubSub.broadcast("#{@pubsub_topic_prefix}#{socket.assigns.game}", {:move_made, %{
-											board: new_board,
-											turn: new_turn,
-											result: result,
-										     }})
+            Chess.PubSub.broadcast("#{socket.assigns.game}", {:move_made, %{
+								 board: new_board,
+								 turn: new_turn,
+								 result: result,
+							      }})
 	    IO.inspect new_turn, label: "NEW TURN"
 
             {:noreply, socket
@@ -221,29 +203,23 @@ defmodule ChessWeb.Live.Interactive do
   end
 
   # Reads game state and updates socket accordingly. Does not modify the board.
-  defp game_status(socket, last_moved_piece, moved_to) do
+  defp game_status(socket, last_moved_piece, moved_to, old_board) do
     white_pieces = Chess.Board.get_pieces(socket.assigns.board, :white)
     black_pieces = Chess.Board.get_pieces(socket.assigns.board, :black)
     enemy_king = Chess.Board.get_king(socket.assigns.board, if(socket.assigns.turn == :white, do: :black, else: :white));
     enemy_king_moves = Chess.Piece.Moves.get(socket.assigns.board, enemy_king);
     last_piece_moves = Chess.Piece.Moves.get(socket.assigns.board, last_moved_piece, moved_to);
-
-    #IO.inspect(enemy_king, label: "king");
-    #IO.inspect(enemy_king_moves, label: "enemy king moves");
-    #IO.inspect(last_piece_moves, label: "last piece moves");
-    #IO.inspect(enemy_king_moves -- last_piece_moves, label: "diff");
+    dest = old_board.cells[moved_to]
 
     cond do
-      Chess.Board.get_king(socket.assigns.board, :white) == nil ->
-	{"The white king has been captured! (That's not supposed to happen...)", socket}
-      Chess.Board.get_king(socket.assigns.board, :black) == nil ->
-	{"The black king has been captured! (That's not supposed to happen...)", socket}
+      dest && dest.type == :king ->
+	{"The #{dest.owner} king has been captured! #{socket.assigns.turn} wins!", socket}
       length(enemy_king_moves) > 0 && enemy_king_moves -- last_piece_moves == [] ->
 	{"Checkmate! #{socket.assigns.turn} wins!", socket}
       length(Chess.Piece.Moves.get_all(socket.assigns.board, white_pieces)) == 0->
-	{"White has no more moves!", socket}
+	{"White has no more moves! black wins!", socket}
       length(Chess.Piece.Moves.get_all(socket.assigns.board, black_pieces)) == 0 ->
-	{"Black has no more moves!", socket}
+	{"Black has no more moves! white wins!", socket}
       true-> 
 	{nil, socket}
     end
@@ -265,4 +241,3 @@ defmodule ChessWeb.Live.Interactive do
     :crypto.strong_rand_bytes(8) |> Base.url_encode64(padding: false)
   end
 end
-

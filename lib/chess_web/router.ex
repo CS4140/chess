@@ -25,12 +25,7 @@ defmodule ChessWeb.Router do
 
     live "/play", Live.Interactive
     live "/play/:id", Live.Interactive
-
-    live "/crazy", Live.CrazyChess
-    live "/crazy/:id", Live.CrazyChess
-
     live "/prepare", Live.Prepare
-    live "/observe/:id", Live.Observe
   end
 
   # Other scopes may use custom stacks.
