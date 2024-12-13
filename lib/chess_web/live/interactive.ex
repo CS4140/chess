@@ -109,25 +109,6 @@ defmodule ChessWeb.Live.Interactive do
     <div class="text-center mt-4 text-xl font-bold">
 	Current turn: <%= String.capitalize(to_string(@turn)) %>
     </div>
-    <!-- Timer display -->
-    <div id="timer-display" class="text-center mt-4 text-xl font-bold">
-	Time elapsed: 0 seconds
-    </div>
-
-    <!-- Inline JavaScript for Timer -->
-    <script>
-    (function startTimer() {
-	let seconds = 0;
-	const timerElement = document.getElementById("timer-display");
-
-	if (timerElement) {
-	    setInterval(() => {
-		seconds += 1;
-		timerElement.textContent = `Time elapsed: ${seconds} seconds`;
-	    }, 1000);
-	}
-    })();
-    </script>
 </div>
 """
     end
