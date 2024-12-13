@@ -6,7 +6,7 @@ defmodule Chess.Board.Presets.Crazy do
         [0, 0] => %Chess.Piece{type: :dragon, owner: p2},
         [1, 0] => %Chess.Piece{type: :ninja, owner: p2},
         [2, 0] => %Chess.Piece{type: :phoenix, owner: p2},
-        [3, 0] => %Chess.Piece{type: :wizard, owner: p2},
+        [3, 0] => %Chess.Piece{type: :wizard, origin: [3, 0], owner: p2},
         [4, 0] => %Chess.Piece{type: :king, owner: p2},
         [5, 0] => %Chess.Piece{type: :phoenix, owner: p2},
         [6, 0] => %Chess.Piece{type: :ninja, owner: p2},
@@ -49,7 +49,7 @@ defmodule Chess.Board.Presets.Crazy do
         [0, 7] => %Chess.Piece{type: :dragon, owner: p1},
         [1, 7] => %Chess.Piece{type: :ninja, owner: p1},
         [2, 7] => %Chess.Piece{type: :phoenix, owner: p1},
-        [3, 7] => %Chess.Piece{type: :wizard, owner: p1},
+        [3, 7] => %Chess.Piece{type: :wizard, origin: [3, 7], owner: p1},
         [4, 7] => %Chess.Piece{type: :king, owner: p1},
         [5, 7] => %Chess.Piece{type: :phoenix, owner: p1},
         [6, 7] => %Chess.Piece{type: :ninja, owner: p1},
@@ -64,14 +64,14 @@ defmodule Chess.Board.Presets.Crazy do
         # Test layout with fewer pieces for debugging
         [0, 0] => %Chess.Piece{type: :dragon, owner: p2},
         [4, 0] => %Chess.Piece{type: :king, owner: p2},
-        [7, 0] => %Chess.Piece{type: :wizard, owner: p2},
+        [7, 0] => %Chess.Piece{type: :wizard, origin: [7, 0], owner: p2},
         
         [0, 1] => %Chess.Piece{type: :pawn, owner: p2},
         [4, 1] => %Chess.Piece{type: :phoenix, owner: p2},
         [7, 1] => %Chess.Piece{type: :ninja, owner: p2},
 
         [3, 3] => %Chess.Piece{type: :dragon, owner: p1},
-        [4, 4] => %Chess.Piece{type: :wizard, owner: p1},
+        [4, 4] => %Chess.Piece{type: :wizard, origin: [4, 4], owner: p1},
         
         [0, 6] => %Chess.Piece{type: :pawn, owner: p1},
         [4, 6] => %Chess.Piece{type: :phoenix, owner: p1},
@@ -79,7 +79,7 @@ defmodule Chess.Board.Presets.Crazy do
         
         [0, 7] => %Chess.Piece{type: :dragon, owner: p1},
         [4, 7] => %Chess.Piece{type: :king, owner: p1},
-        [7, 7] => %Chess.Piece{type: :wizard, owner: p1},
+        [7, 7] => %Chess.Piece{type: :wizard, origin: [7, 7], owner: p1},
 
         # Fill remaining squares with nil
         [1, 0] => nil, [2, 0] => nil, [3, 0] => nil, [5, 0] => nil, [6, 0] => nil,

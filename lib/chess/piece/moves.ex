@@ -6,14 +6,13 @@ defmodule Chess.Piece.Moves do
 
   # Return all of the moves for a list of pieces
   def get_all(board, pieces) do
-   def get_all(board, pieces) do
     Enum.flat_map(pieces, fn {l, p} -> Chess.Piece.Moves.get(board, p, l) end)
   end
 
   # Dragon movements (Queen + Knight)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :dragon, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :dragon, owner: owner},
+    [row, col]) do
     #Logger.info("Calculating Dragon moves from {#{row}, #{col}}")
     queen_moves = get_queen_moves(cells, [row, col], owner)
     knight_moves = get_knight_moves(cells, [row, col], owner)
@@ -23,23 +22,23 @@ defmodule Chess.Piece.Moves do
   end
 
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :wizard, owner: owner},
+          %Chess.Piece{type: :wizard, owner: owner, origin: origin},
           [row, col]) do
     Logger.info("Calculating Wizard moves from {#{row}, #{col}}")
-    moves = if has_moved do
+    moves = if [row, col] != origin do
       # After first move - can move to any square not occupied by friendly piece
       for r <- 0..7,
-          c <- 0..7,
-          {r, c} != {row, col},
-          cells[{r, c}] == nil || cells[{r, c}].color != color,
-          do: {r, c}
+        c <- 0..7,
+      {r, c} != {row, col},
+        cells[{r, c}] == nil || cells[{r, c}].owner != owner,
+        do: {r, c}
     else
       # First move - can only move to empty squares
       for r <- 0..7,
-          c <- 0..7,
-          {r, c} != {row, col},
-          cells[{r, c}] == nil,
-          do: {r, c}
+        c <- 0..7,
+      {r, c} != {row, col},
+        cells[{r, c}] == nil,
+        do: {r, c}
     end
     Logger.info("Wizard can move to: #{inspect(moves)}")
     moves
@@ -47,8 +46,8 @@ defmodule Chess.Piece.Moves do
 
   # Ninja movements (Knight + Adjacent)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :ninja, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :ninja, owner: owner},
+    [row, col]) do
     #Logger.info("Calculating Ninja moves from {#{row}, #{col}}")
     knight_moves = get_knight_moves(cells, [row, col], owner)
     adjacent_moves = get_adjacent_moves(cells, [row, col], owner)
@@ -59,8 +58,8 @@ defmodule Chess.Piece.Moves do
 
   # Phoenix movements (Jumping diagonals)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :phoenix, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :phoenix, owner: owner},
+    [row, col]) do
     #Logger.info("Calculating Phoenix moves from {#{row}, #{col}}")
     moves = get_diagonal_jumping_moves(cells, [row, col], owner)
     #Logger.info("Phoenix can move to: #{inspect(moves)}")
@@ -69,8 +68,8 @@ defmodule Chess.Piece.Moves do
 
   # King movements (One square in any direction)
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :king, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :king, owner: owner},
+    [row, col]) do
     #Logger.info("Calculating King moves from {#{row}, #{col}}")
     moves = get_adjacent_moves(cells, [row, col], owner)
     #Logger.info("King can move to: #{inspect(moves)}")
@@ -79,8 +78,8 @@ defmodule Chess.Piece.Moves do
 
   # Pawn movements
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{type: :pawn, owner: owner},
-          [row, col]) do
+    %Chess.Piece{type: :pawn, owner: owner},
+    [row, col]) do
     #Logger.info("Calculating Pawn moves from {#{row}, #{col}}")
     direction = if owner == :white, do: -1, else: 1
     start_col = if owner == :white, do: 6, else: 1
@@ -115,8 +114,8 @@ defmodule Chess.Piece.Moves do
   end
 
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{owner: owner, type: :rook},
-          [row, col]) do
+    %Chess.Piece{owner: owner, type: :rook},
+    [row, col]) do
     #IO.puts("\n=== Rook Move Calculation ===")
     #IO.inspect([row, col, owner], label: "Calculating moves for rook")
 
@@ -132,8 +131,8 @@ defmodule Chess.Piece.Moves do
   end
 
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{owner: owner, type: :bishop},
-          [row, col]) do
+    %Chess.Piece{owner: owner, type: :bishop},
+    [row, col]) do
     #IO.puts("\n=== Bishop Move Calculation ===")
     #IO.inspect({row, col, owner}, label: "Calculating moves for bishop")
 
@@ -149,8 +148,8 @@ defmodule Chess.Piece.Moves do
   end
 
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{owner: owner, type: :queen},
-          [row, col]) do
+    %Chess.Piece{owner: owner, type: :queen},
+    [row, col]) do
     #IO.puts("\n=== Queen Move Calculation ===")
     #IO.inspect({row, col, owner}, label: "Calculating moves for queen")
 
@@ -169,8 +168,8 @@ defmodule Chess.Piece.Moves do
   end
 
   def get(%Chess.Board{cells: cells},
-          %Chess.Piece{owner: owner, type: :knight},
-          [row, col]) do
+    %Chess.Piece{owner: owner, type: :knight},
+    [row, col]) do
     #IO.puts("\n=== Knight Move Calculation ===")
     #IO.inspect({row, col, owner}, label: "Calculating moves for knight")
 
