@@ -1,68 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crazy Chess</title>
-  <link rel="stylesheet" href={~p"/assets/css/app.css"}> <!-- Link to your CSS -->
-  <style>
-    body {
-      background-image: url(<%= ~p"/assets/Images/LandingPageBackground.jpg.JPG" %>);
-      background-size: cover;
-      background-position: center;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      color: #000000;
-    }
-    header {
-      margin: 20px 0;
-    }
-    .chess-board-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .chess-board {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 400px;
-      height: 400px;
-    }
-    .chess-board button {
-      margin: 5px;
-      padding: 20px 50px;
-      font-size: 16px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .chess-board button:hover {
-      background-color: #555;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Welcome to Crazy Chess!</h1>
-    <p>Experience chess like never before!</p>
-  </header>
-
-  <section class="chess-board-container">
-    <div class="chess-board">
-      <button onclick="window.location.href='/prepare'">Arrange pieces</button>
-      <button onclick="window.location.href='/play'">Play Classic</button>
-      <button onclick="window.location.href='/crazy'">Play Crazy</button>
-      <button onclick="window.location.href='/war'">War Mode</button>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · SO CRAY!">
+      <%= assigns[:page_title] || "CrazyChess" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        color: #000;
+        overflow: hidden;
+      }
+      header {
+        background-color: rgba(0, 0, 139, 0.8);
+        color: #fff;
+        padding: 1rem 0;
+        font-size: 2.5rem;
+        text-shadow: 3px 3px 0px #ff4500;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 70vh;
+        gap: 1rem;
+      }
+      .btn {
+        background-color: #ff4500;
+        border: 2px solid #000;
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 5px 5px 0px #000;
+        transition: all 0.3s;
+        text-decoration: none;
+      }
+      .btn:hover {
+        background-color: #000;
+        color: #ff4500;
+        transform: translate(-3px, -3px);
+        box-shadow: 8px 8px 0px #000;
+      }
+      footer {
+        margin-top: 2rem;
+        font-size: 1rem;
+        color: #000;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem 0;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <header>Welcome to CrazyChess!</header>
+    <div class="container">
+      <a href="/play" class="btn">Play Normal</a>
+      <a href="/crazy" class="btn">Play Crazy</a>
     </div>
-  </section>
+    <footer>
+      A chess experience © 2024 CrazyChess
+    </footer>
 
-  <footer>
-    <p>&copy; 2024 Crazy Chess. All rights reserved.</p>
-  </footer>
-</body>
+    <canvas id="particleCanvas"></canvas>
+    <script>
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+
+      function Particle(x, y, size, speedX, speedY) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.speedX = speedX;
+        this.speedY = speedY;
+      }
+
+      Particle.prototype.update = function () {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.2) this.size -= 0.1;
+      };
+
+      Particle.prototype.draw = function () {
+        ctx.fillStyle = 'rgba(255, 69, 0, 0.7)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+      };
+
+      function addParticle(x, y) {
+        const size = Math.random() * 5 + 1;
+        const speedX = Math.random() * 3 - 1.5;
+        const speedY = Math.random() * 3 - 1.5;
+        particles.push(new Particle(x, y, size, speedX, speedY));
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+          particle.update();
+          particle.draw();
+          if (particle.size <= 0.2) particles.splice(index, 1);
+        });
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('mousemove', (event) => {
+        for (let i = 0; i < 5; i++) {
+          addParticle(event.x, event.y);
+        }
+      });
+
+      animate();
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
 </html>
