@@ -23,10 +23,11 @@ defmodule ChessWeb.Live.Interactive do
 	{:ok, socket |> assign(:game, id)
                      |> assign(:board, game_state.board)
                      |> assign(:turn, game_state.turn)
+	             |> assign(:result, nil)
                      |> assign(:selected_square, nil)
                      |> assign(:valid_moves, [])
-                     |> assign(:player_color, :black)
-	             |> assign(:result, nil)}
+                     |> assign(:player_color, :black)}
+
 
 #	             |> assign(:invite_link, invite_link)}
       else
@@ -168,7 +169,7 @@ defmodule ChessWeb.Live.Interactive do
             new_board = Chess.Board.make_move(socket.assigns.board, position, from)
             new_turn = if(socket.assigns.turn == :white, do: :black, else: :white)
 
-	    {_, socket} = game_status(socket, new_board.cells[position], position);
+	    {result, socket} = game_status(socket, new_board.cells[position], position);
 
             # Update game state
             Chess.GameState.create_game(socket.assigns.game, %{board: new_board, turn: new_turn})
@@ -177,13 +178,17 @@ defmodule ChessWeb.Live.Interactive do
 	    #IO.puts("Broadcasting to #{@pubsub_topic_prefix}#{socket.assigns.game}");
             Chess.PubSub.broadcast("#{@pubsub_topic_prefix}#{socket.assigns.game}", {:move_made, %{
 											board: new_board,
-											turn: new_turn
+											turn: new_turn,
+											result: result,
 										     }})
-            { :noreply, socket
-	      |> assign(:board, new_board)
-	      |> assign(:turn, new_turn)
-              |> assign(:selected_square, nil)
-              |> assign(:valid_moves, [])}
+	    IO.inspect new_turn, label: "NEW TURN"
+
+            {:noreply, socket
+	               |> assign(:board, new_board)
+	               |> assign(:turn, new_turn)
+	               |> assign(:result, result)
+                       |> assign(:selected_square, nil)
+                       |> assign(:valid_moves, [])}
           else
             #Logger.info("Invalid move attempted")
             {:noreply, socket |> assign(:selected_square, nil) |> assign(:valid_moves, [])}
@@ -219,10 +224,7 @@ defmodule ChessWeb.Live.Interactive do
   defp game_status(socket, last_moved_piece, moved_to) do
     white_pieces = Chess.Board.get_pieces(socket.assigns.board, :white)
     black_pieces = Chess.Board.get_pieces(socket.assigns.board, :black)
-
     enemy_king = Chess.Board.get_king(socket.assigns.board, if(socket.assigns.turn == :white, do: :black, else: :white));
-
-
     enemy_king_moves = Chess.Piece.Moves.get(socket.assigns.board, enemy_king);
     last_piece_moves = Chess.Piece.Moves.get(socket.assigns.board, last_moved_piece, moved_to);
 
@@ -233,34 +235,30 @@ defmodule ChessWeb.Live.Interactive do
 
     cond do
       Chess.Board.get_king(socket.assigns.board, :white) == nil ->
-	{:game_over, socket
-	             |> assign(:result, "The white king has been captured! (That's not supposed to happen...)")}
+	{"The white king has been captured! (That's not supposed to happen...)", socket}
       Chess.Board.get_king(socket.assigns.board, :black) == nil ->
-	{:game_over, socket
-	             |> assign(:result, "The black king has been captured! (That's not supposed to happen...)")}
+	{"The black king has been captured! (That's not supposed to happen...)", socket}
       length(enemy_king_moves) > 0 && enemy_king_moves -- last_piece_moves == [] ->
-	{:game_over, socket
-	             |> assign(:result, "Checkmate! #{socket.assigns.turn} wins!")}
+	{"Checkmate! #{socket.assigns.turn} wins!", socket}
       length(Chess.Piece.Moves.get_all(socket.assigns.board, white_pieces)) == 0->
-	{:game_over, socket
-                     |> assign(:result, "White has no more moves!")}
+	{"White has no more moves!", socket}
       length(Chess.Piece.Moves.get_all(socket.assigns.board, black_pieces)) == 0 ->
-	{:game_over, socket
-                     |> assign(:result, "Black has no more moves!")}
+	{"Black has no more moves!", socket}
       true-> 
-	{:continue, socket}
+	{nil, socket}
     end
   end
 
   # Handle incoming moves from PubSub
   @impl true
-  def handle_info({:move_made, %{board: new_board, turn: new_turn}}, socket) do
+  def handle_info({:move_made, %{board: board, turn: turn, result: result}}, socket) do
     #Logger.info("Received move broadcast in regular chess")
     {:noreply, socket
-    |> assign(:board, new_board)
-    |> assign(:turn, new_turn)
-    |> assign(:selected_square, nil)
-    |> assign(:valid_moves, [])}
+               |> assign(:board, board)
+               |> assign(:turn, turn)
+               |> assign(:result, result)
+               |> assign(:selected_square, nil)
+               |> assign(:valid_moves, [])}
   end
 
   defp generate_game_id do
