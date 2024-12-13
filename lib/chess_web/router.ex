@@ -23,8 +23,8 @@ defmodule ChessWeb.Router do
     pipe_through :browser
     get "/", PageController, :home
 
-    live "/play", Live.Interactive
-    live "/play/:id", Live.Interactive
+    live "/game", Live.Interactive
+    live "/game/:id", Live.Interactive
     live "/prepare", Live.Prepare
   end
 

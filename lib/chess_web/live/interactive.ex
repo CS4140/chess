@@ -19,15 +19,15 @@ defmodule ChessWeb.Live.Interactive do
 
       color = cond do
 	Map.has_key?(params, "observer") -> :observer
-	game_state -> :black
-	! game_state -> :white
+	game_state && game_state.started -> :black
+	true -> :white
       end
 
       turn = if(game_state == :nil, do: @initial_turn, else: game_state.turn)
       board = if(game_state == :nil, do: initial_board(params), else: game_state.board)
 
       Chess.PubSub.subscribe("#{id}")
-      Chess.GameState.create_game(id, %{board: board, turn: turn})
+      Chess.GameState.create_game(id, %{board: board, turn: turn, started: color != :observer})
 
       {:ok, socket
             |> assign(:game, id)
@@ -74,8 +74,8 @@ defmodule ChessWeb.Live.Interactive do
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg text-center">
             <h2 class="text-2xl font-bold mb-4"><%= @result %></h2>
-            <a href="/play" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                New Game
+            <a href="/" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                New game
             </a>
         </div>
     </div>
@@ -154,7 +154,7 @@ defmodule ChessWeb.Live.Interactive do
 	    {result, socket} = game_status(socket, new_board.cells[position], position, socket.assigns.board);
 
             # Update game state
-            Chess.GameState.create_game(socket.assigns.game, %{board: new_board, turn: new_turn})
+            Chess.GameState.create_game(socket.assigns.game, %{board: new_board, turn: new_turn, started: true})
 
             # Broadcast move using regular chess specific topic
 	    #IO.puts("Broadcasting to #{@pubsub_topic_prefix}#{socket.assigns.game}");
